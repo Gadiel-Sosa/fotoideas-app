@@ -1,10 +1,9 @@
-import MainLayout from "../layouts/MainLayout";
-import Header from "../components/Header";
-import Card from "../components/Tarjeta";
+import Header from "../components/layout/Header";
+import Card from "../components/ui/Tarjeta";
 
-export default function Dashboard() {
+const Dashboard = () => {
   return (
-    <MainLayout>
+    <>
       <Header />
 
       <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
@@ -25,6 +24,8 @@ export default function Dashboard() {
         <h3>Productos con stock bajo</h3>
         <p>Aquí se mostrarán datos desde la base de datos</p>
       </div>
-    </MainLayout>
+    </>
   );
 }
+
+export default Dashboard

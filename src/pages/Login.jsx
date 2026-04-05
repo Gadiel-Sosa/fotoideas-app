@@ -1,51 +1,65 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import "../styles/login.css";
 
-export default function Login() {
+import Input from "../components/ui/Input";
+import authServices from "../services/authServices"
+import Button from "../components/ui/Button";
+
+
+const Login = () => {
   const navigate = useNavigate();
 
-  const [user, setUser] = useState("");
-  const [pass, setPass] = useState("");
+  const [form, setForm] = useState({ user: "", pass: "" });
   const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setForm({ ...form, [name]: value })
+  }
+
+  const handleLogin = (event) => {
+    event.preventDefault();
 
     // Validación temporal
-    if (user === "admin" && pass === "admin") {
-      localStorage.setItem("auth", "true");
+    if (authServices.login(form)) {
       navigate("/dashboard")
-    } else {
-      setError("Usuario o contraseña incorrectos");
+    }else{
+      setError("Usuario o contraseña incorrecta")
     }
-  };
+  }
+
 
   return (
     <div className="login-container">
       <form className="login-box" onSubmit={handleLogin}>
         <h2>Iniciar Sesión</h2>
 
-        <input
+        <Input
+          name="user"
           type="text"
           placeholder="Usuario"
-          value={user}
-          onChange={(e) => setUser(e.target.value)}
+          value={form.user}
+          onChange={handleChange}
           required
         />
 
-        <input
+        <Input
+          name="pass"
           type="password"
           placeholder="Contraseña"
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
+          value={form.pass}
+          onChange={handleChange}
           required
         />
 
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <button type="submit">Entrar</button>
+        <Button text="Entrar" type="submit"/>
       </form>
     </div>
   );
 }
+
+export default Login

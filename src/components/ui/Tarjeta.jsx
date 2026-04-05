@@ -1,6 +1,6 @@
-import "../styles/card.css";
+import "../../styles/card.css";
 
-export default function Card({ title, value, subtitle }) {
+const Card = ({ title, value, subtitle }) => {
   return (
     <div className="card">
       <p>{title}</p>
@@ -9,3 +9,5 @@ export default function Card({ title, value, subtitle }) {
     </div>
   );
 }
+
+export default Card

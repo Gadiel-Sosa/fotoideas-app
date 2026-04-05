@@ -1,21 +1,23 @@
 import { Link, useLocation } from "react-router-dom";
-import "../styles/sidebar.css";
+import "../../styles/sidebar.css";
+import PageTitle from "../ui/PageTitle";
 
 export default function Sidebar() {
   const location = useLocation();
 
   const menu = [
-    {name: "Dashboard", path: "/"},
+    {name: "Dashboard", path: "/dashboard"},
     { name: "Ventas", path: "/ventas" },
     { name: "Inventario", path: "/inventario" },
     { name: "Proveedores", path: "/proveedores" },
     { name: "Usuarios", path: "/usuarios" },
-    {name: "Reportes", path: "/reportes"}
+    {name: "Reportes", path: "/reportes"},
+    {name: "Cerrar Sesión", path: "/"},
   ];
 
   return (
     <div className="sidebar">
-      <h2>FOTOIDEAD</h2>
+      <PageTitle title="FOTOIDEAS"/>
 
       <nav>
         {menu.map((item) => (

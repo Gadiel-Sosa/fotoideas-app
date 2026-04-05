@@ -1,10 +1,9 @@
-import MainLayout from "../layouts/MainLayout";
+import PageTitle from "../components/ui/PageTitle";
 
-export default function Inventario() {
+const Inventario = () => {
   return (
-    <MainLayout>
-      <h1>Inventario</h1>
-      <p>En construcción...</p>
-    </MainLayout>
+    <PageTitle title="Inventario" subtitle="Gestión de productos"/>
   );
 }
+
+export default Inventario
