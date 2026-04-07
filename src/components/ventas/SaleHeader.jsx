@@ -1,15 +1,20 @@
-export default function SaleHeader() {
+const SaleHeader = ({saleNumber, date, time}) => {
   return (
+
     <div className="sale-header">
+
       <div>
-        <h2>Venta #001</h2>
+        <h2>Venta #{saleNumber}</h2>
       </div>
 
       <div>
-        <span>Fecha: {new Date().toLocaleDateString()}</span>
+        <span>Fecha: {date}</span>
         <br />
-        <span>Hora: {new Date().toLocaleTimeString()}</span>
+        <span>Hora: {time}</span>
       </div>
+
     </div>
-  );
+  )
 }
+
+export default SaleHeader

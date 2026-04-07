@@ -3,7 +3,7 @@ import "./styles/global.css"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 
 import ProtectedRoute from "./components/auth/ProtectedRoute"
-import MainLayout from "./layouts/MainLayout"
+import MainLayout from "./layout/MainLayout"
 
 import Dashboard from "./pages/Dashboard"
 import Ventas from "./pages/Ventas"

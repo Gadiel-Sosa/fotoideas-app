@@ -1,16 +1,23 @@
 import "../../styles/ventas.css";
+import EmptyState from "../ui/EmptyState";
+import TableContainer from "../ui/TableContainer";
 
 const ConsultarVentas = ({ ventas }) => {
+
   if (ventas.length === 0) {
-    return <p>No hay ventas registradas</p>;
+    return <EmptyState message="No hay ventas registradas" />
   }
 
   return (
-    <div className="consultar-ventas">
-      <h3>Consultar Ventas</h3>
+
+    <TableContainer>
+
       <table className="sale-table">
+
         <thead>
+
           <tr>
+
             <th>Folio</th>
             <th>Fecha</th>
             <th>Hora</th>
@@ -20,34 +27,63 @@ const ConsultarVentas = ({ ventas }) => {
             <th>IVA</th>
             <th>Total</th>
             <th>Estado</th>
+
           </tr>
+
         </thead>
+
         <tbody>
+
           {ventas.map((v) => (
+
             <tr key={v.id_venta}>
+
               <td>{v.id_venta}</td>
+
               <td>{v.fecha_venta}</td>
+
               <td>{v.hora_venta}</td>
+
               <td>{v.forma_pago}</td>
+
               <td>
+
                 <ul>
+
                   {v.lista_productos.map((p) => (
+
                     <li key={p.codigo}>
+
                       {p.nombre} x {p.cantidad} - ${p.precio.toFixed(2)}
+
                     </li>
+
                   ))}
+
                 </ul>
+
               </td>
+
               <td>${v.subtotal_venta.toFixed(2)}</td>
+
               <td>${v.Impuesto_iva.toFixed(2)}</td>
+
               <td>${v.total_venta.toFixed(2)}</td>
+
               <td>{v.estado_venta}</td>
+
             </tr>
+
           ))}
+
         </tbody>
+
       </table>
-    </div>
+
+    </TableContainer>
+
   );
+
 };
 
 export default ConsultarVentas;

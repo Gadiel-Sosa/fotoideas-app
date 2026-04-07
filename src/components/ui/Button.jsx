@@ -1,9 +1,10 @@
-const Button = ({text, onClick, type = "button"}) => {
-    return (
-        <button type={type} onClick={onClick}>
-            {text}
-        </button>
-    )
-}
+const Button = ({ children, variant = "primary", ...props }) => {
+  const className = `btn-${variant}`;
+  return (
+    <button className={className} {...props}>
+      {children}
+    </button>
+  );
+};
 
-export default Button
+export default Button;

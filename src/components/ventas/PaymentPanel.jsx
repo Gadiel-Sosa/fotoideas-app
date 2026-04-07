@@ -1,18 +1,38 @@
-export default function PaymentPanel() {
-  return (
-    <div className="payment-panel">
-      <div>
-        <label>Cajero:</label>
-        <input type="text" value="Admin" disabled />
-      </div>
+import Input from "../ui/Input";
 
-      <div>
-        <label>Forma de pago:</label>
-        <select>
-          <option>Efectivo</option>
-          <option>Tarjeta</option>
+const PaymentPanel = ({ cashier, paymentMethod, setPaymentMethod }) => {
+
+  return (
+
+    <div className="payment-panel">
+
+      <Input label="Cajero" value={cashier} disabled />
+
+      <div className="payment-method">
+
+        <label className="payment-label">
+          Forma de pago:
+        </label>
+
+        <select
+          className="input"
+          value={paymentMethod}
+          onChange={(e) =>
+          setPaymentMethod(e.target.value)
+          }
+        >
+          <option value="Efectivo">
+            Efectivo
+          </option>
+          <option value="Tarjeta">
+            Tarjeta
+          </option>
         </select>
       </div>
     </div>
-  );
+
+  )
+
 }
+
+export default PaymentPanel;

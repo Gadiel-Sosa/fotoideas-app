@@ -1,14 +1,13 @@
-const Input = ({ name, type, placeholder, value, onChange }) => {
-  return (
-     <input
-      name={name}
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      required
-    />
-  )
-}
+import { forwardRef } from "react";
 
-export default Input
+const Input = forwardRef((props, ref) => {
+  return (
+    <input
+      ref={ref}
+      {...props}
+      className="input"
+    />
+  );
+});
+
+export default Input;

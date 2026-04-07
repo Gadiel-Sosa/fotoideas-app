@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import "../styles/ventas.css";
 
 import SaleHeader from "../components/ventas/SaleHeader";
@@ -9,78 +10,159 @@ import SaleSummary from "../components/ventas/SaleSummary";
 import SaleTicket from "../components/ventas/SaleTicket";
 import ConsultarVentas from "../components/ventas/ConsultarVentas";
 
-const Ventas = () => {
-  const [productos, setProductos] = useState([]);
-  const [ventas, setVentas] = useState([]); //  ventas registradas
-  const [tab, setTab] = useState("registrar"); // pestaña activa
+import PageContainer from "../components/ui/PageContainer";
+import Section from "../components/ui/Section";
+import Button from "../components/ui/Button";
 
+
+const Ventas = () => {
+
+  const [productos, setProductos] = useState([]);
+  const [ventas, setVentas] = useState([]);
+  const [tab, setTab] = useState("registrar");
+  const [paymentMethod, setPaymentMethod] = useState("Efectivo");
+  //const rol = localStorage.getItem("rol");
+
+  // para pruebas remotas
   const productosDB = {
     "123": { nombre: "Coca Cola", precio: 10 },
     "456": { nombre: "Pan", precio: 15 },
-    "789": { nombre: "Leche", precio: 20 },
+    "789": { nombre: "Leche", precio: 20 }
   };
 
+
+  const subtotal = productos.reduce(
+    (acc, p) => acc + p.precio * p.cantidad,
+    0
+  );
+
+
+  const iva = subtotal * 0.16;
+
+  const total = subtotal + iva;
+
   const handleAddProduct = (codigo) => {
+
     const producto = productosDB[codigo];
     if (!producto) return alert("Producto no encontrado");
 
-    const existe = productos.find((p) => p.codigo === codigo);
+    const existe = productos.find(
+      (p) => p.codigo === codigo
+    );
+
     if (existe) {
-      const nuevos = productos.map((p) =>
-        p.codigo === codigo ? { ...p, cantidad: p.cantidad + 1 } : p
+      setProductos(
+        productos.map((p) =>
+          p.codigo === codigo
+            ? { ...p, cantidad: p.cantidad + 1 }
+            : p
+        )
       );
-      setProductos(nuevos);
-    } else {
-      setProductos([...productos, { codigo, nombre: producto.nombre, precio: producto.precio, cantidad: 1 }]);
+    }else {
+      setProductos([...productos,{
+          codigo,
+          nombre: producto.nombre,
+          precio: producto.precio,
+          cantidad: 1
+        }
+      ]);
     }
   };
 
+
   const handleGenerarTicket = () => {
     const now = new Date();
+
     const nuevaVenta = {
       id_venta: ventas.length + 1,
       fecha_venta: now.toLocaleDateString(),
       hora_venta: now.toLocaleTimeString(),
-      forma_pago: "Efectivo",
+      forma_pago: paymentMethod,
       lista_productos: productos,
-      subtotal_venta: productos.reduce((acc, p) => acc + p.precio * p.cantidad, 0),
-      Impuesto_iva: productos.reduce((acc, p) => acc + p.precio * p.cantidad, 0) * 0.16,
-      total_venta: productos.reduce((acc, p) => acc + p.precio * p.cantidad, 0) * 1.16,
-      estado_venta: "Realizada",
+      subtotal_venta: subtotal,
+      Impuesto_iva: iva,
+      total_venta: total,
+      estado_venta: "Realizada"
     };
+
+
     setVentas([...ventas, nuevaVenta]);
     setProductos([]);
-    alert("Venta registrada y ticket generado");
   };
 
-  return (
-    <div className="ventas-container">
-      <SaleHeader />
 
-      {/* Pestañas */}
-      <div className="tabs">
-        <button className={tab === "registrar" ? "btn-primary" : ""} onClick={() => setTab("registrar")}>Registrar Venta</button>
-        <button className={tab === "consultar" ? "btn-primary" : ""} onClick={() => setTab("consultar")}>Consultar Ventas</button>
-      </div>
+  return (
+
+    <PageContainer>
+      <SaleHeader
+        saleNumber={ventas.length + 1}
+        date={new Date().toLocaleDateString()}
+        time={new Date().toLocaleTimeString()}
+      />
+
+      <Section>
+        <div className="tabs">
+          <Button
+            variant={tab === "registrar" ? "primary" : "secondary"}
+            onClick={() => setTab("registrar")}
+          >
+            Registrar Venta
+          </Button>
+
+
+          <Button
+            variant={tab === "consultar" ? "primary" : "secondary"}
+            onClick={() => setTab("consultar")}
+          >
+            Consultar Ventas
+          </Button>
+
+        </div>
+      </Section>
+
 
       {tab === "registrar" && (
         <>
-          <ScannerInput onAdd={handleAddProduct} />
+          <Section>
+            <ScannerInput onAdd={handleAddProduct} />
+          </Section>
 
-          <div className="ventas-grid">
-            <SaleTable productos={productos} setProductos={setProductos} />
+          <Section title="Detalle venta">
+            <div className="ventas-grid">
 
-            <div className="right-panel">
-              <PaymentPanel />
-              <SaleSummary productos={productos} setProductos={setProductos} />
-              <SaleTicket productos={productos} onGenerarTicket={handleGenerarTicket} />
+              <SaleTable productos={productos} setProductos={setProductos} />
+
+              <div className="right-panel">
+
+                <PaymentPanel
+                  cashier="Admin"
+                  paymentMethod={paymentMethod}
+                  setPaymentMethod={setPaymentMethod}
+                />
+
+
+                <SaleSummary
+                  productos={productos}
+                  setProductos={setProductos}
+                  rol="Admin"
+                />
+
+                <SaleTicket productos={productos} onGenerarTicket={handleGenerarTicket} />
+
+              </div>
             </div>
-          </div>
+          </Section>
         </>
       )}
 
-      {tab === "consultar" && <ConsultarVentas ventas={ventas} />}
-    </div>
+
+      {tab === "consultar" && (
+
+        <Section>
+          <ConsultarVentas ventas={ventas} />
+        </Section>
+      )}
+    </PageContainer>
   );
 };
 

@@ -7,10 +7,10 @@ export default function Sidebar() {
 
   const menu = [
     {name: "Dashboard", path: "/dashboard"},
-    { name: "Ventas", path: "/ventas" },
-    { name: "Inventario", path: "/inventario" },
-    { name: "Proveedores", path: "/proveedores" },
-    { name: "Usuarios", path: "/usuarios" },
+    {name: "Ventas", path: "/ventas" },
+    {name: "Inventario", path: "/inventario" },
+    {name: "Proveedores", path: "/proveedores" },
+    {name: "Usuarios", path: "/usuarios" },
     {name: "Reportes", path: "/reportes"},
     {name: "Cerrar Sesión", path: "/"},
   ];

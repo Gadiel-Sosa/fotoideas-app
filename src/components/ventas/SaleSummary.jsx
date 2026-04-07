@@ -1,45 +1,51 @@
 import { useState } from "react";
 
-export default function SaleSummary({ productos, setProductos }) {
-  const rol = localStorage.getItem("rol"); // admin o usuario
-  const [showModal, setShowModal] = useState(false);
+import "../../styles/ventas.css";
 
+import Button from "../ui/Button";
+import Modal from "../ui/Modal";
+
+const SaleSummary = ({ productos, setProductos, rol }) => {
+
+  const [showModal, setShowModal] = useState(false);
   const total = productos.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
 
+
   const handleCancelarVenta = () => {
-    setProductos([]); // limpia toda la venta
+    setProductos([]);
     setShowModal(false);
   };
 
   return (
     <div className="sale-summary">
-      <h2>Total: ${total}</h2>
+      <h2>Total: ${total.toFixed(2)}</h2>
 
       <div className="buttons">
-        <button className="btn-primary">Cobrar</button>
 
-        {rol === "admin" ? (
-          <button className="btn-danger" onClick={() => setShowModal(true)}>
-            Cancelar venta
-          </button>
-        ) : (
-          <button className="btn-danger" disabled title="Solo admin">
-            Cancelar venta
-          </button>
-        )}
+        <Button variant="primary">
+          Cobrar
+        </Button>
+
+
+        <Button variant="danger" disabled={rol !== "Admin"} onClick={() => setShowModal(true)} >
+          Cancelar venta
+        </Button>
+
       </div>
 
+
       {showModal && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <h3>¿Deseas cancelar toda la venta?</h3>
-            <div className="modal-buttons">
-              <button onClick={handleCancelarVenta}>Sí, cancelar</button>
-              <button onClick={() => setShowModal(false)}>No</button>
-            </div>
-          </div>
-        </div>
+        <Modal
+          title="¿Deseas cancelar toda la venta?"
+          onConfirm={handleCancelarVenta}
+          onCancel={() => setShowModal(false)}
+          confirmText="Sí, cancelar"
+          cancelText="No"
+        />
       )}
+
     </div>
-  );
+  )
 }
+
+export default SaleSummary

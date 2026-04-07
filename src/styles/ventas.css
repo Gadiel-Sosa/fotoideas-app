@@ -88,6 +88,14 @@
   border-radius: 8px;
   cursor: pointer;
 }
+.btn-secondary {
+  background: #5d709b;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
 
 .btn-danger {
   background: #dc2626;
@@ -132,20 +140,69 @@
   text-align: center;
 }
 
-.tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.tabs button {
+.tab-btn {
   padding: 10px 20px;
-  border: none;
   border-radius: 8px;
+  border: none;
+  background: #e5e7eb;
   cursor: pointer;
 }
 
-.tabs .btn-primary {
+.tab-btn:hover {
+  background: #d1d5db;
+}
+
+.tab-btn.active {
   background: #2563eb;
   color: white;
+}
+
+.modal-backdrops {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0,0,0,0.4);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  min-width: 320px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.payment-panel {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.payment-method {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.payment-label {
+  font-size: 14px;
+  font-weight: 500;
 }
