@@ -1,0 +1,15 @@
+.section {
+  margin-bottom: 24px;
+}
+
+/* título interno de sección */
+
+.section h2 {
+  font-size: 18px;
+
+  font-weight: 600;
+
+  color: #1e293b;
+
+  margin-bottom: 12px;
+}

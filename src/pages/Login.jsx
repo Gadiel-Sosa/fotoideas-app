@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 
 import "../styles/login.css";
 
-import Input from "../components/ui/Input";
+import Input from "../components/ui/Input/Input";
 import authServices from "../services/authServices"
-import Button from "../components/ui/Button";
+import Button from "../components/ui/Button/Button";
 
 
 const Login = () => {

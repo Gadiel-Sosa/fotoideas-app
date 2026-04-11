@@ -1,7 +1,7 @@
-import Header from "../components/layout/Header";
-import PageContainer from "../components/ui/PageContainer";
-import StatsGrid from "../components/ui/StatsGrid";
-import Card from "../components/ui/Tarjeta";
+import Header from "../components/layout/Header/Header";
+import PageContainer from "../components/ui/PageContainer/PageContainer";
+import StatsGrid from "../components/ui/StatsGrid/StatsGrid";
+import Card from "../components/ui/Card/Card";
 
 const Dashboard = () => {
   return (
@@ -26,6 +26,7 @@ const Dashboard = () => {
         }}
       >
         <h3>Productos con stock bajo</h3>
+        <br />
         <p>Aquí se mostrarán datos desde la base de datos</p>
       </div>
     </PageContainer>

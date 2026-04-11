@@ -1,4 +1,4 @@
-import PageContainer from "../components/ui/PageContainer";
+import PageContainer from "../components/ui/PageContainer/PageContainer";
 
 const Proveedores = () => {
   return (

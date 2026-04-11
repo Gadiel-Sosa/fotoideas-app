@@ -1,7 +1,7 @@
-import PageContainer from "../components/ui/PageContainer";
-import PageTitle from "../components/ui/PageTitle";
-import Section from "../components/ui/Section";
-import TableContainer from "../components/ui/TableContainer";
+import PageContainer from "../components/ui/PageContainer/PageContainer";
+import PageTitle from "../components/ui/PageTitle/PageTitle";
+import Section from "../components/ui/Section/Section";
+import TableContainer from "../components/ui/TableContainer/TableContainer";
 
 const Inventario = () => {
   return (

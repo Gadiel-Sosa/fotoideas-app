@@ -1,18 +1,18 @@
 import { useState } from "react";
 
-import "../styles/ventas.css";
+import "../styles/Ventas.css";
 
-import SaleHeader from "../components/ventas/SaleHeader";
-import ScannerInput from "../components/ventas/ScannerInput";
-import SaleTable from "../components/ventas/SaleTable";
-import PaymentPanel from "../components/ventas/PaymentPanel";
-import SaleSummary from "../components/ventas/SaleSummary";
-import SaleTicket from "../components/ventas/SaleTicket";
-import ConsultarVentas from "../components/ventas/ConsultarVentas";
+import SaleHeader from "../components/ventas/SaleHeader/SaleHeader"
+import ScannerInput from "../components/ventas/ScannerInput/ScannerInput";
+import SaleTable from "../components/ventas/SaleTable/SaleTable";
+import PaymentPanel from "../components/ventas/PaymentPanel/PaymentPanel";
+import SaleSummary from "../components/ventas/SaleSummary/SaleSummary";
+import SaleTicket from "../components/ventas/SaleTicket/SaleTicket";
+import ConsultarVentas from "../components/ventas/ConsultarVentas/ConsultarVentas";
 
-import PageContainer from "../components/ui/PageContainer";
-import Section from "../components/ui/Section";
-import Button from "../components/ui/Button";
+import PageContainer from "../components/ui/PageContainer/PageContainer";
+import Section from "../components/ui/Section/Section";
+import Button from "../components/ui/Button/Button";
 
 
 const Ventas = () => {
