@@ -1,7 +1,7 @@
 .page-container {
   min-height: 100vh;
-  overflow-y: auto;
   padding: clamp(10px, 2vw, 24px);
+  background: #f8fafc;
 }
 
 @media (min-width: 1024px) {

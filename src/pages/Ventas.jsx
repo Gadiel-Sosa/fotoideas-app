@@ -99,9 +99,8 @@ const Ventas = () => {
         date={new Date().toLocaleDateString()}
         time={new Date().toLocaleTimeString()}
       />
-
-      <Section>
-        <div className="tabs">
+      <br />
+       <div className="tabs">
           <Button
             variant={tab === "registrar" ? "primary" : "secondary"}
             onClick={() => setTab("registrar")}
@@ -118,8 +117,7 @@ const Ventas = () => {
           </Button>
 
         </div>
-      </Section>
-
+        <br />
 
       {tab === "registrar" && (
         <>

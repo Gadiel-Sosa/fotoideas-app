@@ -16,18 +16,13 @@ const PaymentPanel = ({ cashier, paymentMethod, setPaymentMethod }) => {
         </label>
 
         <select
-          className="input"
+          className="payment-select"
           value={paymentMethod}
-          onChange={(e) =>
-          setPaymentMethod(e.target.value)
-          }
+          onChange={(e) => setPaymentMethod(e.target.value)}
         >
-          <option value="Efectivo">
-            Efectivo
-          </option>
-          <option value="Tarjeta">
-            Tarjeta
-          </option>
+          <option value="Efectivo">Efectivo</option>
+          <option value="Tarjeta">Tarjeta</option>
+
         </select>
       </div>
     </div>
