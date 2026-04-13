@@ -1,0 +1,5 @@
+.scanner-container {
+  display: flex;
+  width: 100%;        /* que el form ocupe todo el section */
+  box-sizing: border-box;
+}

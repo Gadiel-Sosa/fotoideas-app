@@ -1,0 +1,23 @@
+.sale-table {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+}
+
+.sale-table th,
+.sale-table td {
+  padding: 12px;
+}
+
+.sale-table button {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sale-table button:hover {
+  background: #b91c1c;
+}

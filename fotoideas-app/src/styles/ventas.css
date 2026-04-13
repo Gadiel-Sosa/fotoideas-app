@@ -1,0 +1,61 @@
+/* ── Tabs ──────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-primary {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-secondary {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* ── Grid principal de ventas ───────────── */
+.ventas-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .ventas-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Panel derecho ──────────────────────── */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 16px;          /* se queda visible al hacer scroll */
+}

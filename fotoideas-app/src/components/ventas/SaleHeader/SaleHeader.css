@@ -1,0 +1,7 @@
+.sale-header {
+  display: flex;
+  justify-content: space-between;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+}
