@@ -66,7 +66,7 @@ const ConsultarVentas = ({ ventas }) => {
 
               <td>${v.subtotal_venta.toFixed(2)}</td>
 
-              <td>${v.Impuesto_iva.toFixed(2)}</td>
+              <td>${v.impuesto_iva.toFixed(2)}</td>
 
               <td>${v.total_venta.toFixed(2)}</td>
 

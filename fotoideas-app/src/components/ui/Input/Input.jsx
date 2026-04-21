@@ -1,13 +1,17 @@
 import { forwardRef } from "react";
 import "./Input.css"
 
-const Input = forwardRef((props, ref) => {
+const Input = forwardRef(({ label, id, className = "", ...props }, ref) => {
   return (
-    <input
-      ref={ref}
-      {...props}
-      className={`input ${props.className || ""}`}
-    />
+    <div className="input-wrapper">
+      {label && <label htmlFor={id} className="input-label">{label}</label>}
+      <input
+        ref={ref}
+        id={id}
+        className={`input ${className}`}
+        {...props}
+      />
+    </div>
   );
 });
 

@@ -1,0 +1,77 @@
+/* Asegurar que el Section ocupe todo el ancho */
+.corte-caja-wrapper {
+  width: 100%;
+}
+
+/* El formulario ocupa todo el ancho */
+form {
+  width: 100%;
+}
+
+/* Grid de dos columnas que se expande */
+.corte-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* Cada columna ocupa todo su espacio */
+.corte-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Los inputs dentro de las columnas ocupan todo el ancho */
+.corte-col .input-wrapper {
+  width: 100%;
+}
+
+/* Campo de texto a lo ancho completo */
+.corte-full {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.corte-full .input-wrapper {
+  width: 100%;
+}
+
+/* Botones alineados a la derecha */
+.corte-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+/* Responsive: en móviles se pone en una columna */
+@media (max-width: 768px) {
+  .corte-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .corte-buttons {
+    flex-direction: column;
+  }
+  
+  .corte-buttons button {
+    width: 100%;
+  }
+}
+
+/* Colores para la diferencia */
+.input.positive {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.input.negative {
+  color: #ef4444;
+  font-weight: 600;
+}
