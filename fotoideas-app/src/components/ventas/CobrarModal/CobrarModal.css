@@ -1,0 +1,88 @@
+.cobrar-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.cobrar-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.cobrar-modal h3 {
+  margin: 0 0 20px 0;
+  font-size: 22px;
+  color: #1e293b;
+  text-align: center;
+}
+
+.cobrar-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+.cobrar-total strong {
+  font-size: 24px;
+  color: #2563eb;
+}
+
+.cobrar-cambio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 20px 0;
+  font-size: 18px;
+}
+
+.cambio-positivo {
+  font-size: 24px;
+  color: #10b981;
+}
+
+.cambio-cero {
+  font-size: 24px;
+  color: #64748b;
+}
+
+.cobrar-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.cobrar-buttons button {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .cobrar-modal {
+    padding: 20px;
+    width: 95%;
+  }
+  
+  .cobrar-total strong,
+  .cambio-positivo,
+  .cambio-cero {
+    font-size: 20px;
+  }
+}

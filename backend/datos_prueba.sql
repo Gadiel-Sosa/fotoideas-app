@@ -35,3 +35,16 @@ VALUES (1, CURRENT_DATE, CURRENT_TIME, 1000.00);
 -- 8. Venta (Relaciona Corte de caja y Empleado)
 INSERT INTO Venta (id_corte_caja, id_empleado, fecha_venta, hora_venta, total_venta, forma_pago) 
 VALUES (1, 1, CURRENT_DATE, CURRENT_TIME, 12500.00, 'Efectivo');
+
+
+SELECT * FROM Venta;
+
+
+ALTER TABLE Sesion
+ALTER COLUMN fecha_inicio_sesion SET DEFAULT NOW();
+
+ALTER TABLE Sesion
+ALTER COLUMN hora_inicio_sesion SET DEFAULT CURRENT_TIME;
+
+ALTER TABLE Sesion
+DROP CONSTRAINT sesion_id_credencial_key;
