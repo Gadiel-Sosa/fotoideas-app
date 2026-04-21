@@ -1,0 +1,39 @@
+services: 
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  
+  back:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  front:
+    build: ./fotoideas-app
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./fotoideas-app:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    depends_on:
+      - back
+
+volumes:
+  pgdata:

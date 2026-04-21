@@ -1,8 +1,4 @@
 import pg from 'pg';
-import dotenv from 'dotenv';
-
-// Configuramos las variables de entorno
-dotenv.config();
 
 // Extraemos Pool de la librería pg
 const { Pool } = pg;
