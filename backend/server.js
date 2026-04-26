@@ -246,3 +246,106 @@ app.post('/api/corte/realizar', async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
+// Obtener historial de ventas (Para consultar)
+app.get('/api/ventas', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT v.id_venta, v.fecha_venta, v.hora_venta, v.total_venta, v.forma_pago, e.nombre_empleado,
+              'Completada' as estado_venta,
+              (v.total_venta / 1.16) as subtotal_venta,
+              (v.total_venta - (v.total_venta / 1.16)) as impuesto_iva,
+              COALESCE(
+                (SELECT json_agg(json_build_object('codigo', p.codigo_barras_producto, 'nombre', p.nombre_producto, 'cantidad', dv.cantidad_venta, 'precio', p.precio_venta))
+                 FROM Detalle_venta dv
+                 JOIN Producto p ON dv.id_producto = p.id_producto
+                 WHERE dv.id_venta = v.id_venta), '[]'::json
+              ) as lista_productos
+       FROM Venta v
+       JOIN Empleado e ON v.id_empleado = e.id_empleado
+       ORDER BY v.id_venta DESC`
+    );
+    res.json({ success: true, ventas: result.rows });
+  } catch (error) {
+    console.error("Error al obtener ventas:", error);
+    res.status(500).json({ success: false, error: "Error al obtener historial" });
+  }
+});
+
+// Registrar (Guardar) una nueva venta
+app.post('/api/ventas', async (req, res) => {
+  const { id_corte_caja, id_empleado, total_venta, forma_pago, productos } = req.body;
+  
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN'); // Iniciar transacción segura
+    
+    // 1. Insertar la venta general
+    const ventaResult = await client.query(
+      `INSERT INTO Venta (id_corte_caja, id_empleado, fecha_venta, hora_venta, total_venta, forma_pago)
+       VALUES ($1, $2, CURRENT_DATE, CURRENT_TIME, $3, $4) RETURNING id_venta`,
+      [id_corte_caja, id_empleado, total_venta, forma_pago]
+    );
+    
+    const id_venta = ventaResult.rows[0].id_venta;
+    
+    // 2. Insertar los detalles de la venta (productos cobrados)
+    if (productos && productos.length > 0) {
+      for (const item of productos) {
+        let id_prod = item.id_producto || item.id;
+        
+        // Si solo tenemos el código de barras, buscamos el ID real en la BD
+        if (!id_prod && item.codigo) {
+           const resProd = await client.query('SELECT id_producto FROM Producto WHERE codigo_barras_producto = $1', [item.codigo]);
+           if (resProd.rows.length > 0) {
+             id_prod = resProd.rows[0].id_producto;
+           }
+        }
+
+        await client.query(
+          `INSERT INTO Detalle_venta (id_venta, id_producto, cantidad_venta)
+           VALUES ($1, $2, $3)`,
+          [id_venta, id_prod, item.cantidad || 1]
+        );
+      }
+    }
+    
+    await client.query('COMMIT'); // Guardar cambios definitivamente
+    res.json({ success: true, message: 'Venta registrada exitosamente', id_venta });
+  } catch (error) {
+    await client.query('ROLLBACK'); // Deshacer cambios si hubo error
+    console.error('Error al registrar venta:', error);
+    res.status(500).json({ success: false, error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Cancelar una venta ya realizada
+app.delete('/api/ventas/:id', async (req, res) => {
+  const { id } = req.params;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // 1. Borrar primero los detalles de la venta (Para evitar error de Llave Foránea)
+    await client.query('DELETE FROM Detalle_venta WHERE id_venta = $1', [id]);
+
+    // 2. Borrar la venta de la tabla Venta
+    const result = await client.query('DELETE FROM Venta WHERE id_venta = $1 RETURNING *', [id]);
+
+    if (result.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ success: false, error: "Venta no encontrada" });
+    }
+
+    await client.query('COMMIT');
+    res.json({ success: true, message: "Venta cancelada exitosamente" });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error("Error al cancelar la venta:", error);
+    res.status(500).json({ success: false, error: "Error del servidor al cancelar venta" });
+  } finally {
+    client.release();
+  }
+});

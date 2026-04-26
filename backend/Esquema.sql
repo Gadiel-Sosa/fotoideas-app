@@ -170,7 +170,7 @@ CREATE TABLE Movimiento_proveedor (
 
 CREATE TABLE Sesion (
     id_login SERIAL PRIMARY KEY,
-    id_credencial INTEGER NOT NULL UNIQUE,
+    id_credencial INTEGER NOT NULL,
     fecha_inicio_sesion DATE NOT NULL DEFAULT CURRENT_DATE,
     hora_inicio_sesion TIME NOT NULL DEFAULT CURRENT_TIME,
     FOREIGN KEY (id_credencial) REFERENCES Credencial(id_credencial)
