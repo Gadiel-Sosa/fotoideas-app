@@ -130,3 +130,4 @@ Para completar la funcionalidad integral del sistema POS, están pendientes de d
 *   **Página de Usuarios (Empleados):** Implementación de una vista administrativa exclusiva para perfiles autorizados que permita dar de alta nuevos empleados, gestionar sus credenciales y desactivar accesos.
 *   **Página de Reportes:** Módulo analítico donde se podrán consultar historiales detallados de ventas por rangos de fechas, revisar la auditoría de los cortes de caja y visualizar de manera profunda las métricas clave mostradas en el Dashboard.
 *   **Ajuste de BD para Nuevo Escáner:** Ejecutar los scripts SQL necesarios para alterar la tabla `Producto` agregando el campo compatible con el nuevo escáner, y actualizar la función de búsqueda en el backend.
+    **Agregar otra tabla para las bajas (cancelar venta), por si hay algo relacionado con otras tablas o facturas
