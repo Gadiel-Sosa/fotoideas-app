@@ -35,13 +35,14 @@ export const registrarVenta = async (ventaData) => {
   }
 };
 
-export const cancelarVentaRealizada = async (idVenta) => {
+export const cancelarVentaRealizada = async (idVenta, motivo, id_rol) => {
   try {
     const response = await fetch(`${API_URL}/${idVenta}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json"
-      }
+      },
+      body: JSON.stringify({ motivo, id_rol })
     });
 
     const data = await response.json();

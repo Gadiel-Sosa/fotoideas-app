@@ -76,8 +76,8 @@ Se eligió **Docker** para desplegar la base de datos **PostgreSQL**. Esta decis
 ### 6.4 Flujo de Cancelación de Venta
 1.  El usuario (con los permisos de administrador adecuados) selecciona una venta previamente completada desde un historial.
 2.  El Frontend invoca el servicio `cancelarVentaRealizada` (`ventaService.js`), enviando el ID de la venta seleccionada.
-3.  Se realiza una petición HTTP `DELETE` (o `PUT` para borrado lógico) hacia `/api/ventas/:id`.
-4.  El Backend elimina o invalida el registro en la tabla `Venta`. Al anularse, este monto dejará de sumar en las operaciones matemáticas del Corte de Caja.
+3.  Se realiza una petición HTTP `DELETE` hacia `/api/ventas/:id`.
+4.  El Backend realiza un **borrado lógico**, conservando los datos en la tabla `Venta` y `Detalle_venta`, pero insertando un registro vinculado en la tabla `Cancelar_venta`. Esto permite mantener el historial intacto para auditorías.
 
 ---
 
@@ -92,7 +92,7 @@ Se eligió **Docker** para desplegar la base de datos **PostgreSQL**. Esta decis
 | **GET** | `/api/productos/codigo/:codigo` | Consulta por `codigo_barras_producto`. Si no existe retorna error 404, de lo contrario devuelve ID, nombre y precio. |
 | **GET** | `/api/corte/datos` | Busca el último corte de caja "activo" de un empleado y suma sus transacciones del día desde la tabla `Venta`. Retorna los valores base para el corte. |
 | **POST** | `/api/corte/realizar` | Recibe la contabilidad física, actualiza la tabla `Corte_caja` calculando variaciones (`diferencia_caja`) y marca la hora de cierre final. |
-| **DELETE**| `/api/ventas/:id` | Permite cancelar una venta ya completada, eliminando o invalidando su registro en la base de datos mediante su identificador único. |
+| **DELETE**| `/api/ventas/:id` | Permite cancelar una venta ya completada mediante borrado lógico, registrándola en la tabla `Cancelar_venta` sin eliminar físicamente el historial. |
 
 ---
 
@@ -117,7 +117,6 @@ El sistema está estructurado con buenas prácticas contemporáneas de modularid
 **Posibles Mejoras Futuras:**
 *   Se recomienda añadir JSON Web Tokens (JWT) en el Login, en vez de devolver `success: true`, para poder proteger los Endpoints de ventas e inventario.
 *   Considerar mover el "Cajero logueado (`id_empleado = 1`)" fijo en `/api/corte/datos` para que dinámicamente obtenga el ID de quien hizo la solicitud HTTP mediante el token sugerido en el punto anterior.
-*   Implementar **borrado lógico** en la cancelación de ventas (añadiendo un campo de `estado` a la tabla `Venta` en la BD) en lugar de un borrado físico para mantener un historial auditable.
 
 ---
 
@@ -130,4 +129,4 @@ Para completar la funcionalidad integral del sistema POS, están pendientes de d
 *   **Página de Usuarios (Empleados):** Implementación de una vista administrativa exclusiva para perfiles autorizados que permita dar de alta nuevos empleados, gestionar sus credenciales y desactivar accesos.
 *   **Página de Reportes:** Módulo analítico donde se podrán consultar historiales detallados de ventas por rangos de fechas, revisar la auditoría de los cortes de caja y visualizar de manera profunda las métricas clave mostradas en el Dashboard.
 *   **Ajuste de BD para Nuevo Escáner:** Ejecutar los scripts SQL necesarios para alterar la tabla `Producto` agregando el campo compatible con el nuevo escáner, y actualizar la función de búsqueda en el backend.
-    **Agregar otra tabla para las bajas (cancelar venta), por si hay algo relacionado con otras tablas o facturas
+    **Agregar otra tabla para las bajas (cancelar venta)** por si hay algo relacionado con otras tablas o facturas**listo**

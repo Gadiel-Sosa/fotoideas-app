@@ -252,7 +252,7 @@ app.get('/api/ventas', async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT v.id_venta, v.fecha_venta, v.hora_venta, v.total_venta, v.forma_pago, e.nombre_empleado,
-              'Completada' as estado_venta,
+              CASE WHEN cv.id_venta IS NOT NULL THEN 'Cancelada' ELSE 'Completada' END as estado_venta,
               (v.total_venta / 1.16) as subtotal_venta,
               (v.total_venta - (v.total_venta / 1.16)) as impuesto_iva,
               COALESCE(
@@ -263,6 +263,7 @@ app.get('/api/ventas', async (req, res) => {
               ) as lista_productos
        FROM Venta v
        JOIN Empleado e ON v.id_empleado = e.id_empleado
+       LEFT JOIN Cancelar_venta cv ON v.id_venta = cv.id_venta
        ORDER BY v.id_venta DESC`
     );
     res.json({ success: true, ventas: result.rows });
@@ -321,23 +322,39 @@ app.post('/api/ventas', async (req, res) => {
   }
 });
 
-// Cancelar una venta ya realizada
+// Cancelar una venta ya realizada (Borrado Lógico)
 app.delete('/api/ventas/:id', async (req, res) => {
   const { id } = req.params;
+  const { motivo, id_rol } = req.body;
+  
+  if (!motivo || !id_rol) {
+    return res.status(400).json({ success: false, error: "Faltan datos obligatorios (motivo o rol)" });
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     
-    // 1. Borrar primero los detalles de la venta (Para evitar error de Llave Foránea)
-    await client.query('DELETE FROM Detalle_venta WHERE id_venta = $1', [id]);
-
-    // 2. Borrar la venta de la tabla Venta
-    const result = await client.query('DELETE FROM Venta WHERE id_venta = $1 RETURNING *', [id]);
-
-    if (result.rowCount === 0) {
+    // 1. Verificar que la venta existe en primer lugar
+    const checkVenta = await client.query('SELECT id_venta FROM Venta WHERE id_venta = $1', [id]);
+    if (checkVenta.rowCount === 0) {
       await client.query('ROLLBACK');
       return res.status(404).json({ success: false, error: "Venta no encontrada" });
     }
+
+    // 2. Verificar si ya se encuentra cancelada para no duplicar el registro
+    const checkCancelada = await client.query('SELECT * FROM Cancelar_venta WHERE id_venta = $1', [id]);
+    if (checkCancelada.rowCount > 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ success: false, error: "La venta ya se encuentra cancelada" });
+    }
+
+    // 3. Registrar la anulación insertando todos los campos requeridos en la tabla Cancelar_venta
+    await client.query(
+      `INSERT INTO Cancelar_venta (id_venta, id_rol, motivo_cancelar_venta, fecha_cancelar_venta, hora_cancelar_venta) 
+       VALUES ($1, $2, $3, CURRENT_DATE, CURRENT_TIME)`, 
+      [id, id_rol, motivo]
+    );
 
     await client.query('COMMIT');
     res.json({ success: true, message: "Venta cancelada exitosamente" });
