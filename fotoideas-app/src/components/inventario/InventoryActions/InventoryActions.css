@@ -1,0 +1,12 @@
+.inventory-actions {
+  display: flex;
+  gap: 16px;              /* espacio ENTRE botones */
+  margin-bottom: 20px;
+}
+
+.inventory-btn {
+  padding: 10px 22px;    /* ← esto da el "look" del mockup */
+  border-radius: 12px;
+  font-weight: 500;
+  min-width: fit-content;
+}

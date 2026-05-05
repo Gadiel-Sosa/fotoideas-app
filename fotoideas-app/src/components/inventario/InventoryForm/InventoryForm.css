@@ -1,0 +1,84 @@
+.inventory-form {
+  border: 1px solid #e5e7eb;
+  padding: 22px;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+/* GRID MÁS ORDENADO */
+.inventory-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+/* INPUT GROUP */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* LABELS MÁS PRO */
+.form-group label {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* INPUTS */
+.inventory-form input,
+.inventory-form select,
+.inventory-form textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  transition: border 0.2s;
+}
+
+.inventory-form input:focus,
+.inventory-form select:focus,
+.inventory-form textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* TEXTAREA FULL */
+.inventory-form textarea {
+  grid-column: span 2;
+  height: 90px;
+}
+
+/* BOTONES */
+.inventory-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* BOTÓN CANCELAR */
+.btn-cancel {
+  background: #f3f4f6;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* BOTÓN CONFIRMAR */
+.btn-confirm {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-confirm:hover {
+  background: #1d4ed8;
+}
