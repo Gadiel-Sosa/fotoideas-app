@@ -21,9 +21,22 @@ const ConsultarVentas = () => {
   };
 
   const handleCancelar = async (idVenta) => {
+    // 1. Pedir el motivo de la cancelación
+    const motivo = window.prompt("Ingrese el motivo de la cancelación:");
+    
+    // Si el usuario cancela el prompt o lo deja vacío, detenemos el proceso
+    if (motivo === null) return; 
+    if (motivo.trim() === "") {
+      alert("Debe ingresar un motivo válido para cancelar la venta.");
+      return;
+    }
+
     if (window.confirm("¿Estás seguro de cancelar y eliminar esta venta?")) {
       try {
-        await cancelarVentaRealizada(idVenta);
+        const usuarioLocal = JSON.parse(localStorage.getItem("user"));
+        const idRol = usuarioLocal?.id_rol || 1; // Usa el rol del usuario o 1 (Admin) por defecto
+
+        await cancelarVentaRealizada(idVenta, motivo, idRol);
         alert("Venta cancelada exitosamente");
         cargarVentas(); // Recarga la tabla para desaparecer la venta
       } catch (error) {
@@ -106,13 +119,17 @@ const ConsultarVentas = () => {
               <td>{v.estado_venta}</td>
               
               <td>
-                <button 
-                  style={{ backgroundColor: '#ef4444', color: 'white', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                  onClick={() => handleCancelar(v.id_venta)}
-                  title="Anular venta"
-                >
-                  Cancelar Venta
-                </button>
+                {v.estado_venta === 'Completada' ? (
+                  <button 
+                    style={{ backgroundColor: '#ef4444', color: 'white', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+                    onClick={() => handleCancelar(v.id_venta)}
+                    title="Anular venta"
+                  >
+                    Cancelar Venta
+                  </button>
+                ) : (
+                  <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Cancelada</span>
+                )}
               </td>
 
             </tr>
