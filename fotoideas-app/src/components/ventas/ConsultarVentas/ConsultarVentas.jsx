@@ -6,6 +6,9 @@ import { obtenerVentas, cancelarVentaRealizada } from "../../../services/ventaSe
 
 const ConsultarVentas = () => {
   const [ventas, setVentas] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [ventaACancelar, setVentaACancelar] = useState(null);
+  const [motivoCancelacion, setMotivoCancelacion] = useState("");
 
   useEffect(() => {
     cargarVentas();
@@ -20,28 +23,28 @@ const ConsultarVentas = () => {
     }
   };
 
-  const handleCancelar = async (idVenta) => {
-    // 1. Pedir el motivo de la cancelación
-    const motivo = window.prompt("Ingrese el motivo de la cancelación:");
-    
-    // Si el usuario cancela el prompt o lo deja vacío, detenemos el proceso
-    if (motivo === null) return; 
-    if (motivo.trim() === "") {
+  const abrirModalCancelacion = (venta) => {
+    setVentaACancelar(venta);
+    setMotivoCancelacion("");
+    setModalVisible(true);
+  };
+
+  const confirmarCancelacion = async () => {
+    if (motivoCancelacion.trim() === "") {
       alert("Debe ingresar un motivo válido para cancelar la venta.");
       return;
     }
 
-    if (window.confirm("¿Estás seguro de cancelar y eliminar esta venta?")) {
-      try {
-        const usuarioLocal = JSON.parse(localStorage.getItem("user"));
-        const idRol = usuarioLocal?.id_rol || 1; // Usa el rol del usuario o 1 (Admin) por defecto
+    try {
+      const usuarioLocal = JSON.parse(localStorage.getItem("user"));
+      const idRol = usuarioLocal?.id_rol || 1; // Usa el rol del usuario o 1 (Admin) por defecto
 
-        await cancelarVentaRealizada(idVenta, motivo, idRol);
-        alert("Venta cancelada exitosamente");
-        cargarVentas(); // Recarga la tabla para desaparecer la venta
-      } catch (error) {
-        alert("Error al cancelar: " + error.message);
-      }
+      await cancelarVentaRealizada(ventaACancelar.id_venta, motivoCancelacion, idRol);
+      alert("Venta eliminada del historial exitosamente");
+      setModalVisible(false);
+      cargarVentas(); // Recarga la tabla para desaparecer la venta
+    } catch (error) {
+      alert("Error al cancelar: " + error.message);
     }
   };
 
@@ -50,7 +53,7 @@ const ConsultarVentas = () => {
   }
 
   return (
-
+    <>
     <TableContainer>
 
       <table className="sale-table">
@@ -122,13 +125,13 @@ const ConsultarVentas = () => {
                 {v.estado_venta === 'Completada' ? (
                   <button 
                     style={{ backgroundColor: '#ef4444', color: 'white', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                    onClick={() => handleCancelar(v.id_venta)}
-                    title="Anular venta"
+                    onClick={() => abrirModalCancelacion(v)}
+                    title="Eliminar del historial"
                   >
-                    Cancelar Venta
+                  Eliminar del historial
                   </button>
                 ) : (
-                  <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Cancelada</span>
+                  <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Eliminada</span>
                 )}
               </td>
 
@@ -142,6 +145,99 @@ const ConsultarVentas = () => {
 
     </TableContainer>
 
+    {/* Modal de Cancelación (Ventana Emergente) */}
+    {modalVisible && ventaACancelar && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '24px',
+          width: '500px',
+          maxWidth: '90%',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+          fontFamily: 'inherit'
+        }}>
+          {/* Encabezado del Modal */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            borderBottom: '2px solid #f3f4f6',
+            paddingBottom: '16px',
+            alignItems: 'flex-start'
+          }}>
+            {/* Izquierda: Folio y ID */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontWeight: '900', fontSize: '1.2rem', color: '#111827' }}>Folio</span>
+              <span style={{ color: '#4b5563', fontSize: '0.9rem', fontWeight: '500' }}>ID: {ventaACancelar.id_venta}</span>
+            </div>
+
+            {/* Centro: Fecha y Hora */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <span style={{ fontWeight: 'bold', color: '#374151' }}>{new Date().toLocaleDateString()}</span>
+              <span style={{ color: '#6b7280', fontSize: '0.9rem' }}>{new Date().toLocaleTimeString()}</span>
+            </div>
+
+            {/* Derecha: Estado */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+              <span style={{
+                backgroundColor: ventaACancelar.estado_venta === 'Completada' ? '#dcfce7' : '#fee2e2',
+                color: ventaACancelar.estado_venta === 'Completada' ? '#166534' : '#991b1b',
+                padding: '4px 10px',
+                borderRadius: '9999px',
+                fontSize: '0.8rem',
+                fontWeight: 'bold'
+              }}>
+                {ventaACancelar.estado_venta}
+              </span>
+            </div>
+          </div>
+          
+          {/* Cuerpo: Motivo */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontWeight: 'bold', color: '#374151' }}>Motivo de la cancelación:</label>
+            <textarea 
+              value={motivoCancelacion}
+              onChange={(e) => setMotivoCancelacion(e.target.value)}
+              placeholder="Escribe el motivo detallado por el cual se elimina del historial..."
+              rows={4}
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', resize: 'none', fontSize: '1rem', boxSizing: 'border-box', outline: 'none' }}
+              autoFocus
+            />
+          </div>
+
+          {/* Pie: Botones */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
+            <button 
+              onClick={() => setModalVisible(false)}
+              style={{ backgroundColor: '#ef4444', color: 'white', padding: '10px 18px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.95rem' }}
+            >
+              Cancelar
+            </button>
+            <button 
+              onClick={confirmarCancelacion}
+              style={{ backgroundColor: '#3b82f6', color: 'white', padding: '10px 18px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.95rem' }}
+            >
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 
 };

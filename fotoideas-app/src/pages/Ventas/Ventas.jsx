@@ -7,7 +7,6 @@ import ScannerInput from "../../components/ventas/ScannerInput/ScannerInput";
 import SaleTable from "../../components/ventas/SaleTable/SaleTable";
 import PaymentPanel from "../../components/ventas/PaymentPanel/PaymentPanel";
 import SaleSummary from "../../components/ventas/SaleSummary/SaleSummary";
-import SaleTicket from "../../components/ventas/SaleTicket/SaleTicket";
 import ConsultarVentas from "../../components/ventas/ConsultarVentas/ConsultarVentas";
 import CorteCaja from "../../components/ventas/CorteCaja/CorteCaja";
 
@@ -104,7 +103,6 @@ const Ventas = () => {
 
     setVentas([...ventas, nuevaVenta]);
     setProductos([]);
-    alert("Venta registrada exitosamente");
   };
 
   return (
@@ -171,11 +169,6 @@ const Ventas = () => {
                     setProductos={setProductos}
                     rol="Admin"
                     onCobrar={handleGenerarTicket}
-                  />
-
-                  <SaleTicket
-                    productos={productos}
-                    onGenerarTicket={handleGenerarTicket}
                   />
                 </div>
               </div>

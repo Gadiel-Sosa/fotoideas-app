@@ -252,7 +252,7 @@ app.get('/api/ventas', async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT v.id_venta, v.fecha_venta, v.hora_venta, v.total_venta, v.forma_pago, e.nombre_empleado,
-              CASE WHEN cv.id_venta IS NOT NULL THEN 'Cancelada' ELSE 'Completada' END as estado_venta,
+              CASE WHEN cv.id_venta IS NOT NULL THEN 'Eliminada' ELSE 'Completada' END as estado_venta,
               (v.total_venta / 1.16) as subtotal_venta,
               (v.total_venta - (v.total_venta / 1.16)) as impuesto_iva,
               COALESCE(
