@@ -32,3 +32,62 @@
   display: flex;   
   margin: 20px 0;          /* espacio arriba y abajo */
 }
+
+/* 1. Botones de Acción Superiores */
+.inventario-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+/* 2. Marco del Formulario */
+.inventario-form-frame {
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 24px;
+}
+
+.form-col {
+  flex: 1;
+}
+
+.form-label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  box-sizing: border-box;
+}
+
+.form-select {
+  background-color: white;
+}
+
+.form-textarea {
+  resize: none;
+}
+
+/* 3. Botones Inferiores */
+.inventario-form-footer {
+  display: flex;
+  justify-content: flex-start;
+  gap: 16px;
+  margin-top: 24px;
+}

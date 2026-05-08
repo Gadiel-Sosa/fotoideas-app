@@ -56,11 +56,123 @@ app.post('/api/login', async (req, res) => {
 // Ejemplo 1: Obtener productos reales de la tabla 'Producto' de tu BD
 app.get('/api/productos', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM Producto');
-    res.json(result.rows);
+    const result = await pool.query(`
+      SELECT p.id_producto, p.codigo_barras_producto, p.nombre_producto, 
+             p.marca_producto as categoria, p.descripcion, p.precio_venta as precio_publico,
+             p.estado_producto as estado,
+             COALESCE(i.cantidad_inventario, 0) as stock
+      FROM Producto p
+      LEFT JOIN Inventario i ON p.id_producto = i.id_producto
+      ORDER BY p.id_producto DESC
+    `);
+    res.json({ success: true, productos: result.rows });
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ error: 'Error al obtener productos' });
+    res.status(500).json({ success: false, error: 'Error al obtener productos' });
+  }
+});
+
+// Registrar un nuevo producto en Inventario
+app.post('/api/productos', async (req, res) => {
+  const { codigo_barras, nombre, categoria, descripcion, precio_publico, stock, estado } = req.body;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN'); // Iniciar transacción
+
+    // 1. Insertamos en Producto (mapeando "categoria" a "marca_producto" del esquema)
+    const prodResult = await client.query(
+      `INSERT INTO Producto (nombre_producto, marca_producto, precio_venta, codigo_barras_producto, descripcion, estado_producto)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_producto`,
+      [nombre, categoria || null, precio_publico || 0, codigo_barras || null, descripcion || null, estado || 'activo']
+    );
+
+    const idNuevoProducto = prodResult.rows[0].id_producto;
+
+    // 2. Insertamos en la tabla Inventario (Asignado a la sucursal 1 por defecto temporalmente)
+    await client.query(
+      `INSERT INTO Inventario (id_producto, id_sucursal, cantidad_inventario)
+       VALUES ($1, $2, $3)`,
+      [idNuevoProducto, 1, stock || 0]
+    );
+
+    await client.query('COMMIT'); // Guardar permanentemente
+    res.json({ success: true, message: 'Producto registrado', id_producto: idNuevoProducto });
+  } catch (error) {
+    await client.query('ROLLBACK'); // Revertir en caso de fallo
+    console.error('Error al agregar producto:', error);
+    res.status(500).json({ success: false, error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Actualizar un producto existente
+app.put('/api/productos/:id', async (req, res) => {
+  const { id } = req.params;
+  const { codigo_barras, nombre, categoria, descripcion, precio_publico, stock, estado } = req.body;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Actualizar datos del producto
+    await client.query(
+      `UPDATE Producto 
+       SET nombre_producto = $1, marca_producto = $2, precio_venta = $3, codigo_barras_producto = $4, descripcion = $5, estado_producto = $6
+       WHERE id_producto = $7`,
+      [nombre, categoria || null, precio_publico || 0, codigo_barras || null, descripcion || null, estado || 'activo', id]
+    );
+
+    // Actualizar cantidad en inventario
+    await client.query(
+      `UPDATE Inventario SET cantidad_inventario = $1 WHERE id_producto = $2 AND id_sucursal = 1`,
+      [stock || 0, id]
+    );
+
+    await client.query('COMMIT');
+    res.json({ success: true, message: 'Producto actualizado exitosamente' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error al actualizar producto:', error);
+    res.status(500).json({ success: false, error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Borrar (Dar de baja) un producto lógicamente
+app.delete('/api/productos/:id', async (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body; // Recibirá "inactivo"
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // Borrado Lógico: cambiamos el estado y dejamos el stock en 0
+    await client.query(`UPDATE Producto SET estado_producto = $1 WHERE id_producto = $2`, [estado || 'inactivo', id]);
+    await client.query(`UPDATE Inventario SET cantidad_inventario = 0 WHERE id_producto = $1 AND id_sucursal = 1`, [id]);
+
+    await client.query('COMMIT');
+    res.json({ success: true, message: 'Producto dado de baja exitosamente' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error al borrar producto:', error);
+    res.status(500).json({ success: false, error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Obtener todos los proveedores
+app.get('/api/proveedores', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM Proveedor ORDER BY id_proveedor DESC');
+    res.json({ success: true, proveedores: result.rows });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ success: false, error: 'Error al obtener proveedores' });
   }
 });
 
