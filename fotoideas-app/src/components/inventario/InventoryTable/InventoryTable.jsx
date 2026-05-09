@@ -1,37 +1,57 @@
-import "./InventoryTable.css"
+import TableContainer from "../../ui/TableContainer/TableContainer";
+import EmptyState from "../../ui/EmptyState/EmptyState";
 
-const InventoryTable = () => {
+const InventoryTable = ({ productos, handleAccionDesdeTabla }) => {
+  if (productos.length === 0) {
+    return <EmptyState message="No hay productos registrados en el inventario" />;
+  }
+
   return (
-    <div className="inventory-table">
-
-      <table>
+    <TableContainer>
+      <table className="sale-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Nombre</th>
             <th>Código</th>
-            <th>Precio</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Precio Público</th>
             <th>Stock</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
-
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>Producto ejemplo</td>
-            <td>123456</td>
-            <td>$100</td>
-            <td>20</td>
-            <td>
-              <button>Editar</button>
-              <button>Eliminar</button>
-            </td>
-          </tr>
+          {productos.map((p) => (
+            <tr key={p.id_producto}>
+              <td>{p.id_producto}</td>
+              <td>{p.codigo_barras_producto || "N/A"}</td>
+              <td>{p.nombre_producto}</td>
+              <td>{p.categoria || "Sin categoría"}</td>
+              <td>${Number(p.precio_publico || 0).toFixed(2)}</td>
+              <td>
+                <span style={{ fontWeight: 'bold', color: p.stock <= 5 ? '#ef4444' : '#10b981' }}>
+                  {p.stock}
+                </span>
+              </td>
+              <td>
+                <span style={{ 
+                  backgroundColor: p.estado === 'inactivo' ? '#fee2e2' : '#dcfce7',
+                  color: p.estado === 'inactivo' ? '#991b1b' : '#166534',
+                  padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold' 
+                }}>
+                  {p.estado === 'inactivo' ? 'Inactivo' : 'Activo'}
+                </span>
+              </td>
+              <td style={{ display: 'flex', gap: '8px' }}>
+                <button style={{ backgroundColor: '#3b82f6', color: 'white', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => handleAccionDesdeTabla(p, "actualizar")}>Editar</button>
+                <button style={{ backgroundColor: '#ef4444', color: 'white', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => handleAccionDesdeTabla(p, "borrar")}>Eliminar</button>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
-
-    </div>
+    </TableContainer>
   );
 };
 
