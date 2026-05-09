@@ -86,10 +86,14 @@ Se eligió **Docker** para desplegar la base de datos **PostgreSQL**. Esta decis
 | Método | Endpoint | Descripción y Comportamiento |
 | :--- | :--- | :--- |
 | **GET** | `/` | Endpoint de validación (Health Check) para confirmar que la API de Express responde. |
-| **POST** | `/api/login` | Recibe `username` y `password`. Verifica las tablas `Credencial` y `Empleado`. Si son válidas, guarda en `Sesion` y retorna `success: true`. |
-| **GET** | `/api/productos` | Retorna un listado crudo de todos los productos en la base de datos. (Ejemplo básico para inventarios). |
-| **GET** | `/api/dashboard/stats` | Reúne información de múltiples tablas (Ventas del día, Inventario total, Proveedores y Alertas de bajo inventario) para llenar las tarjetas del Dashboard. |
+| **POST** | `/api/login` | Autenticación y registro de auditoría en la tabla `Sesion`. |
+| **GET** | `/api/productos` | Retorna lista de productos con su stock actual (JOIN con `Inventario`) y su estado. |
+| **POST** | `/api/productos` | Registra un nuevo producto en la tabla `Producto` y su stock inicial en `Inventario`. |
+| **PUT** | `/api/productos/:id`| Actualiza la información de un producto existente y ajusta su stock. |
+| **DELETE**| `/api/productos/:id`| Realiza un **borrado lógico** de un producto (cambia estado a inactivo y stock a 0). |
 | **GET** | `/api/productos/codigo/:codigo` | Consulta por `codigo_barras_producto`. Si no existe retorna error 404, de lo contrario devuelve ID, nombre y precio. |
+| **GET** | `/api/proveedores` | Retorna el catálogo de todos los proveedores registrados. |
+| **GET** | `/api/dashboard/stats` | Reúne métricas globales para las tarjetas del Dashboard (Ventas, Inventario, Proveedores y Alertas). |
 | **GET** | `/api/corte/datos` | Busca el último corte de caja "activo" de un empleado y suma sus transacciones del día desde la tabla `Venta`. Retorna los valores base para el corte. |
 | **POST** | `/api/corte/realizar` | Recibe la contabilidad física, actualiza la tabla `Corte_caja` calculando variaciones (`diferencia_caja`) y marca la hora de cierre final. |
 | **DELETE**| `/api/ventas/:id` | Permite cancelar una venta ya completada mediante borrado lógico, registrándola en la tabla `Cancelar_venta` sin eliminar físicamente el historial. |
@@ -102,6 +106,9 @@ Se eligió **Docker** para desplegar la base de datos **PostgreSQL**. Esta decis
 *   **`ScannerInput.jsx`:** Un input altamente especializado. Tiene `autoFocus` (ideal para pistolas de código de barras) y un *Event Listener* para detectar la tecla `Enter`, evitando la necesidad de hacer clic en un botón de buscar.
 *   **`SaleTable.jsx`:** Componente de renderizado de la grilla de ventas. Contiene funciones de seguridad como `formatearPrecio` y `obtenerCantidad` para prevenir que `NaN` o valores nulos colapsen la vista si llegan datos malformados de la API.
 *   **`SaleSummary.jsx`:** Orquesta la conclusión de la venta. Se encarga de hacer el sumatorio o `reduce` matemático, y maneja la apertura de Modales (ventanas emergentes) tanto para el Cobro como para cancelar la venta actual.
+*   **`Inventario.jsx`:** Vista principal del módulo de inventario. Administra el estado global para alternar entre "Gestionar" y "Consultar", y centraliza las llamadas a la API (CRUD).
+*   **`InventoryForm.jsx`:** Formulario dinámico que adapta sus campos dependiendo si la acción es "Agregar", "Actualizar" o "Borrar". Construido como un componente controlado para evitar advertencias de React.
+*   **`InventoryTable.jsx`:** Grilla para visualizar el catálogo completo. Incluye indicadores visuales (badges) para alertar sobre stock bajo y el estado (Activo/Inactivo) del producto.
 *   **`productService.js`:** Es una "Capa de Abstracción" vital. En vez de llamar a `fetch` desperdigado por los componentes React, el código está aquí. Realiza 6 pasos estrictos (desde invocar a la API hasta asegurar que la estructura JSON de respuesta tenga sentido antes de enviar datos al componente de UI).
 *   **`ventaService.js`:** Capa de abstracción para gestionar las operaciones sobre el histórico de las ventas, como la anulación/cancelación de transacciones ya procesadas.
 
@@ -124,9 +131,9 @@ El sistema está estructurado con buenas prácticas contemporáneas de modularid
 
 Para completar la funcionalidad integral del sistema POS, están pendientes de desarrollar e integrar los siguientes módulos y tareas técnicas:
 
-*   **Página de Inventario:** Desarrollo de la interfaz gráfica (CRUD) para visualizar, agregar, actualizar y eliminar productos. Deberá incluir indicadores visuales para alertar sobre stock bajo e integrarse con el endpoint de productos en el backend.
-*   **Página de Proveedores:** Creación de un panel para registrar y gestionar el catálogo de proveedores que surten al negocio, administrando sus datos de contacto y la relación de los insumos.
+*   **Página de Inventario:** **(Completado)** Desarrollo de la interfaz gráfica (CRUD) para visualizar, agregar, actualizar y eliminar de forma lógica los productos.
+*   **Página de Proveedores:** **(En progreso)** El endpoint ya existe en el backend, falta maquetar la UI (Proveedores.jsx) con su formulario y tabla correspondiente.
 *   **Página de Usuarios (Empleados):** Implementación de una vista administrativa exclusiva para perfiles autorizados que permita dar de alta nuevos empleados, gestionar sus credenciales y desactivar accesos.
 *   **Página de Reportes:** Módulo analítico donde se podrán consultar historiales detallados de ventas por rangos de fechas, revisar la auditoría de los cortes de caja y visualizar de manera profunda las métricas clave mostradas en el Dashboard.
 *   **Ajuste de BD para Nuevo Escáner:** Ejecutar los scripts SQL necesarios para alterar la tabla `Producto` agregando el campo compatible con el nuevo escáner, y actualizar la función de búsqueda en el backend.
-    **Agregar otra tabla para las bajas (cancelar venta)** por si hay algo relacionado con otras tablas o facturas**listo**
+    ~~**Agregar otra tabla para las bajas (cancelar venta)**~~ **(Completado)**
