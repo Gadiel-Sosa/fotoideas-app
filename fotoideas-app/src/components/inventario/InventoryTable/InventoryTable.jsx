@@ -1,37 +1,56 @@
-import "./InventoryTable.css"
+import TableContainer from "../../ui/TableContainer/TableContainer";
+import EmptyState from "../../ui/EmptyState/EmptyState";
+import "./InventoryTable.css";
 
-const InventoryTable = () => {
+const InventoryTable = ({ productos, handleAccionDesdeTabla }) => {
+  if (productos.length === 0) {
+    return <EmptyState message="No hay productos registrados en el inventario" />;
+  }
+
   return (
-    <div className="inventory-table">
-
+    <TableContainer>
+      <div className="inventory-table">
       <table>
         <thead>
           <tr>
             <th>ID</th>
-            <th>Nombre</th>
             <th>Código</th>
-            <th>Precio</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Precio Público</th>
             <th>Stock</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
-
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>Producto ejemplo</td>
-            <td>123456</td>
-            <td>$100</td>
-            <td>20</td>
-            <td>
-              <button>Editar</button>
-              <button>Eliminar</button>
-            </td>
-          </tr>
+          {productos.map((p) => (
+            <tr key={p.id_producto}>
+              <td>{p.id_producto}</td>
+              <td>{p.codigo_barras_producto || "N/A"}</td>
+              <td>{p.nombre_producto}</td>
+              <td>{p.categoria || "Sin categoría"}</td>
+              <td>${Number(p.precio_publico || 0).toFixed(2)}</td>
+              <td>
+                <span className={`stock-badge ${p.stock <= 5 ? 'stock-low' : 'stock-ok'}`}>
+                  {p.stock}
+                </span>
+              </td>
+              <td>
+                <span className={`status-badge ${p.estado === 'inactivo' ? 'status-inactive' : 'status-active'}`}>
+                  {p.estado === 'inactivo' ? 'Inactivo' : 'Activo'}
+                </span>
+              </td>
+              <td className="action-buttons">
+                <button onClick={() => handleAccionDesdeTabla(p, "actualizar")}>Editar</button>
+                <button onClick={() => handleAccionDesdeTabla(p, "borrar")}>Eliminar</button>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
-
-    </div>
+      </div>
+    </TableContainer>
   );
 };
 
