@@ -17,11 +17,11 @@ CREATE TABLE Producto (
 
 CREATE TABLE Proveedor (
     id_proveedor SERIAL PRIMARY KEY,
-    nombre_proveedor VARCHAR(20) NOT NULL,
-    telefono_proveedor VARCHAR(10),
-    correo_proveedor VARCHAR(20),
-    RFC_proveedor VARCHAR(13) UNIQUE,
-    nombre_empresa VARCHAR(20),
+    nombre_proveedor VARCHAR(100) NOT NULL,
+    telefono_proveedor VARCHAR(20),
+    correo_proveedor VARCHAR(100),
+    RFC_proveedor VARCHAR(20) UNIQUE,
+    nombre_empresa VARCHAR(100),
     direccion_proveedor TEXT
 );
 
@@ -72,6 +72,7 @@ CREATE TABLE Corte_caja (
     pago_proveedores DECIMAL(10,2),
     efectivo_esperado DECIMAL(10,2),
     efectivo_real DECIMAL(10,2),
+    diferencia_caja DECIMAL(10,2),
     observaciones_corte TEXT,
     FOREIGN KEY (id_empleado) REFERENCES Empleado(id_empleado)
 );
@@ -183,5 +184,3 @@ CREATE TABLE Empleado_Rol (
     FOREIGN KEY (id_rol) REFERENCES Rol_user(id_rol),
     FOREIGN KEY (id_empleado) REFERENCES Empleado(id_empleado)
 );
-
-

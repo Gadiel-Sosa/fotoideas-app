@@ -15,6 +15,7 @@ const Inventario = () => {
   const [tab, setTab] = useState("gestionar");
   const [accion, setAccion] = useState("agregar"); // Estado para alternar: agregar, actualizar, borrar
   const [productos, setProductos] = useState([]); // Estado para la tabla de consultar
+  const [proveedoresList, setProveedoresList] = useState([]); // Lista para el dropdown de proveedores
   
   // Estado para capturar todos los datos del formulario
   const [formData, setFormData] = useState({
@@ -63,6 +64,17 @@ const Inventario = () => {
     }
   };
 
+  const cargarProveedores = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/proveedores");
+      const data = await response.json();
+      if (data.success) {
+        setProveedoresList(data.proveedores);
+      }
+    } catch (error) {
+      console.error("Error al cargar proveedores:", error);
+    }
+  };
   
   // Ejecutar la carga de productos cada vez que el usuario cambie a la pestaña "consultar"
   useEffect(() => {
@@ -70,6 +82,11 @@ const Inventario = () => {
       cargarProductos();
     }
   }, [tab]);
+
+  // Cargar lista de proveedores una sola vez al montar el componente (para el dropdown del formulario)
+  useEffect(() => {
+    cargarProveedores();
+  }, []);
 
   // Función que se activa al darle click a "Editar" o "Eliminar" en la tabla
   const handleAccionDesdeTabla = (producto, nuevaAccion) => {
@@ -191,6 +208,7 @@ const Inventario = () => {
                 setAccion={setAccion}
                 handleConfirmar={handleConfirmar}
                 resetForm={resetForm}
+                proveedoresList={proveedoresList}
               />
             </Section>
           )}

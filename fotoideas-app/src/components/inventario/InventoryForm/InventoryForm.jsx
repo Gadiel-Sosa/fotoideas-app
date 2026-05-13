@@ -1,7 +1,7 @@
 import Button from "../../ui/Button/Button";
 import "./InventoryForm.css";
 
-const InventoryForm = ({ formData, handleChange, accion, setAccion, handleConfirmar, resetForm }) => {
+const InventoryForm = ({ formData, handleChange, accion, setAccion, handleConfirmar, resetForm, proveedoresList }) => {
   return (
     <>
       {/* 1. Botones de Acción Superiores */}
@@ -81,7 +81,14 @@ const InventoryForm = ({ formData, handleChange, accion, setAccion, handleConfir
               </div>
               <div className="form-group">
                 <label>Proveedor</label>
-                <input type="text" name="proveedor" value={formData.proveedor ?? ""} onChange={handleChange} placeholder="Nombre del proveedor..." />
+                <select name="proveedor" value={formData.proveedor ?? ""} onChange={handleChange}>
+                  <option value="">-- Seleccione un proveedor --</option>
+                  {proveedoresList && proveedoresList.map(prov => (
+                    <option key={prov.id_proveedor} value={prov.id_proveedor}>
+                      {prov.nombre_empresa ? `${prov.nombre_empresa} (${prov.nombre_proveedor})` : prov.nombre_proveedor}
+                    </option>
+                  ))}
+                </select>
               </div>
             </>
           )}

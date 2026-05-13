@@ -93,6 +93,9 @@ Se eligió **Docker** para desplegar la base de datos **PostgreSQL**. Esta decis
 | **DELETE**| `/api/productos/:id`| Realiza un **borrado lógico** de un producto (cambia estado a inactivo y stock a 0). |
 | **GET** | `/api/productos/codigo/:codigo` | Consulta por `codigo_barras_producto`. Si no existe retorna error 404, de lo contrario devuelve ID, nombre y precio. |
 | **GET** | `/api/proveedores` | Retorna el catálogo de todos los proveedores registrados. |
+| **POST** | `/api/proveedores` | Crea un nuevo registro de proveedor en la tabla `Proveedor`. |
+| **PUT** | `/api/proveedores/:id` | Actualiza la información de contacto y empresa de un proveedor. |
+| **DELETE** | `/api/proveedores/:id` | Elimina un proveedor físicamente (solo si no existen operaciones vinculadas en otras tablas). |
 | **GET** | `/api/dashboard/stats` | Reúne métricas globales para las tarjetas del Dashboard (Ventas, Inventario, Proveedores y Alertas). |
 | **GET** | `/api/corte/datos` | Busca el último corte de caja "activo" de un empleado y suma sus transacciones del día desde la tabla `Venta`. Retorna los valores base para el corte. |
 | **POST** | `/api/corte/realizar` | Recibe la contabilidad física, actualiza la tabla `Corte_caja` calculando variaciones (`diferencia_caja`) y marca la hora de cierre final. |
@@ -111,6 +114,8 @@ Se eligió **Docker** para desplegar la base de datos **PostgreSQL**. Esta decis
 *   **`InventoryTable.jsx`:** Grilla para visualizar el catálogo completo. Incluye indicadores visuales (badges) para alertar sobre stock bajo y el estado (Activo/Inactivo) del producto.
 *   **`productService.js`:** Es una "Capa de Abstracción" vital. En vez de llamar a `fetch` desperdigado por los componentes React, el código está aquí. Realiza 6 pasos estrictos (desde invocar a la API hasta asegurar que la estructura JSON de respuesta tenga sentido antes de enviar datos al componente de UI).
 *   **`ventaService.js`:** Capa de abstracción para gestionar las operaciones sobre el histórico de las ventas, como la anulación/cancelación de transacciones ya procesadas.
+*   **`Proveedores.jsx`:** Vista principal del módulo de proveedores, maneja la conexión con el backend para la administración del catálogo de proveedores.
+*   **`ProviderForm.jsx` / `ProviderTable.jsx`:** Componentes modulares y reutilizables para separar el formulario de captura y la grilla de visualización del listado de proveedores.
 
 ---
 
@@ -132,8 +137,8 @@ El sistema está estructurado con buenas prácticas contemporáneas de modularid
 Para completar la funcionalidad integral del sistema POS, están pendientes de desarrollar e integrar los siguientes módulos y tareas técnicas:
 
 *   **Página de Inventario:** **(Completado)** Desarrollo de la interfaz gráfica (CRUD) para visualizar, agregar, actualizar y eliminar de forma lógica los productos.
-*   **Página de Proveedores:** **(En progreso)** El endpoint ya existe en el backend, falta maquetar la UI (Proveedores.jsx) con su formulario y tabla correspondiente.
+*   **Página de Proveedores:** **(Completado)** Integración de la vista completa (CRUD) con su respectiva tabla y formularios modulares conectados al backend.
 *   **Página de Usuarios (Empleados):** Implementación de una vista administrativa exclusiva para perfiles autorizados que permita dar de alta nuevos empleados, gestionar sus credenciales y desactivar accesos.
 *   **Página de Reportes:** Módulo analítico donde se podrán consultar historiales detallados de ventas por rangos de fechas, revisar la auditoría de los cortes de caja y visualizar de manera profunda las métricas clave mostradas en el Dashboard.
-*   **Ajuste de BD para Nuevo Escáner:** Ejecutar los scripts SQL necesarios para alterar la tabla `Producto` agregando el campo compatible con el nuevo escáner, y actualizar la función de búsqueda en el backend.
+*   **Integración de Pistola Escáner:** **(Completado)** Creación del componente `ScannerInput.jsx` que intercepta los disparos del lector de código de barras físico sin depender de clics ni botones.
     ~~**Agregar otra tabla para las bajas (cancelar venta)**~~ **(Completado)**

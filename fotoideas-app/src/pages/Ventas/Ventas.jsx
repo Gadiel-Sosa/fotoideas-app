@@ -29,7 +29,6 @@ const Ventas = () => {
   // AGREGAR PRODUCTO POR CÓDIGO DE BARRAS
   const handleAddProduct = async (codigo) => {
     if (!codigo || codigo.trim() === "") {
-      alert("Por favor ingrese un código válido");
       return;
     }
 
@@ -40,6 +39,19 @@ const Ventas = () => {
       if (!producto) {
         alert("Producto no encontrado");
         return;
+      }
+      
+      // Emitir un sonido de "Beep" exitoso
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // 880 Hz = Tono agudo clásico de POS
+        oscillator.connect(audioCtx.destination);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.1); // Dura 0.1 segundos
+      } catch (e) {
+        console.log("Audio no soportado o bloqueado");
       }
 
       const existe = productos.find(
@@ -147,7 +159,7 @@ const Ventas = () => {
         {tab === "registrar" && (
           <>
             <Section>
-              <ScannerInput onAdd={handleAddProduct} />
+              <ScannerInput onScan={handleAddProduct} />
             </Section>
 
             <Section title="Detalle venta">

@@ -176,6 +176,52 @@ app.get('/api/proveedores', async (req, res) => {
   }
 });
 
+// Registrar un nuevo proveedor
+app.post('/api/proveedores', async (req, res) => {
+  const { nombre_proveedor, nombre_empresa, telefono_proveedor, correo_proveedor, RFC_proveedor, direccion_proveedor } = req.body;
+  try {
+    const result = await pool.query(
+      `INSERT INTO Proveedor (nombre_proveedor, nombre_empresa, telefono_proveedor, correo_proveedor, RFC_proveedor, direccion_proveedor)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_proveedor`,
+      [nombre_proveedor, nombre_empresa || null, telefono_proveedor || null, correo_proveedor || null, RFC_proveedor || null, direccion_proveedor || null]
+    );
+    res.json({ success: true, message: 'Proveedor registrado exitosamente', id_proveedor: result.rows[0].id_proveedor });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ success: false, error: 'Error al registrar proveedor' });
+  }
+});
+
+// Actualizar proveedor existente
+app.put('/api/proveedores/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nombre_proveedor, nombre_empresa, telefono_proveedor, correo_proveedor, RFC_proveedor, direccion_proveedor } = req.body;
+  try {
+    await pool.query(
+      `UPDATE Proveedor 
+       SET nombre_proveedor = $1, nombre_empresa = $2, telefono_proveedor = $3, correo_proveedor = $4, RFC_proveedor = $5, direccion_proveedor = $6
+       WHERE id_proveedor = $7`,
+      [nombre_proveedor, nombre_empresa || null, telefono_proveedor || null, correo_proveedor || null, RFC_proveedor || null, direccion_proveedor || null, id]
+    );
+    res.json({ success: true, message: 'Proveedor actualizado exitosamente' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ success: false, error: 'Error al actualizar proveedor' });
+  }
+});
+
+// Eliminar proveedor (Nota: Fallará de forma segura si tiene compras, gracias a las llaves foráneas de SQL)
+app.delete('/api/proveedores/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM Proveedor WHERE id_proveedor = $1', [id]);
+    res.json({ success: true, message: 'Proveedor eliminado exitosamente' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ success: false, error: 'No se puede eliminar: el proveedor tiene compras o movimientos asociados.' });
+  }
+});
+
 // Ejemplo 2: Datos para llenar las tarjetas del Dashboard consultando a Docker
 app.get('/api/dashboard/stats', async (req, res) => {
   try {

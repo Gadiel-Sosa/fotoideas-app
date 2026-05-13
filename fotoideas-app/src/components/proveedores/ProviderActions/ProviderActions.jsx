@@ -1,57 +1,14 @@
-import { useState } from "react";
-
 import Button from "../../ui/Button/Button";
+import "../../inventario/InventoryForm/InventoryForm.css"; // Reutilizamos la clase inventario-actions
 
-import ProviderAddForm from "../ProviderAddForm/ProviderAddForm";
-import ProviderUpdateForm from "../ProviderUpdateForm/ProviderUpdateForm";
-import ProviderDeleteForm from "../ProviderDeleteForm/ProviderDeleteForm";
-
-import "./ProviderActions.css";
-
-const ProviderActions = () => {
-
-  const [tab, setTab] = useState("agregar");
-
-  const tabs = [
-    {
-      name: "Agregar",
-      value: "agregar"
-    },
-    {
-      name: "Actualizar",
-      value: "actualizar"
-    },
-    {
-      name: "Borrar",
-      value: "borrar"
-    }
-  ];
-
+const ProviderActions = ({ accion, setAccion }) => {
   return (
-    <>
-      <div className="provider-actions">
-
-        {tabs.map((item) => (
-
-          <Button
-            key={item.value}
-            variant={tab === item.value ? "primary" : "secondary"}
-            onClick={() => setTab(item.value)}
-          >
-            {item.name}
-          </Button>
-
-        ))}
-
-      </div>
-
-      {tab === "agregar" && <ProviderAddForm />}
-
-      {tab === "actualizar" && <ProviderUpdateForm />}
-
-      {tab === "borrar" && <ProviderDeleteForm />}
-    </>
+    <div className="inventario-actions">
+      <Button variant={accion === "agregar" ? "primary" : "secondary"} onClick={() => setAccion("agregar")}>Agregar</Button>
+      <Button variant={accion === "actualizar" ? "primary" : "secondary"} onClick={() => setAccion("actualizar")}>Actualizar</Button>
+      <Button variant={accion === "borrar" ? "primary" : "secondary"} onClick={() => setAccion("borrar")}>Borrar</Button>
+    </div>
   );
 };
 
-export default ProviderActions
+export default ProviderActions;
