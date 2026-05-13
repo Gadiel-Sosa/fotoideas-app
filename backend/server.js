@@ -461,10 +461,18 @@ app.post('/api/ventas', async (req, res) => {
            }
         }
 
+        const qty = item.cantidad || 1;
+
         await client.query(
           `INSERT INTO Detalle_venta (id_venta, id_producto, cantidad_venta)
            VALUES ($1, $2, $3)`,
-          [id_venta, id_prod, item.cantidad || 1]
+          [id_venta, id_prod, qty]
+        );
+
+        // Descontar la cantidad del inventario
+        await client.query(
+          `UPDATE Inventario SET cantidad_inventario = cantidad_inventario - $1 WHERE id_producto = $2 AND id_sucursal = 1`,
+          [qty, id_prod]
         );
       }
     }
@@ -513,6 +521,15 @@ app.delete('/api/ventas/:id', async (req, res) => {
        VALUES ($1, $2, $3, CURRENT_DATE, CURRENT_TIME)`, 
       [id, id_rol, motivo]
     );
+
+    // 4. Regresar el stock al inventario
+    const detalles = await client.query('SELECT id_producto, cantidad_venta FROM Detalle_venta WHERE id_venta = $1', [id]);
+    for (const item of detalles.rows) {
+      await client.query(
+        `UPDATE Inventario SET cantidad_inventario = cantidad_inventario + $1 WHERE id_producto = $2 AND id_sucursal = 1`,
+        [item.cantidad_venta, item.id_producto]
+      );
+    }
 
     await client.query('COMMIT');
     res.json({ success: true, message: "Venta cancelada exitosamente" });

@@ -21,6 +21,28 @@ const SaleTable = ({ productos = [], setProductos }) => {
     setProductoSeleccionado(null);
   };
 
+  // Botón +
+  const incrementarCantidad = (codigo) => {
+    setProductos(
+      productos.map((p) =>
+        p.codigo === codigo ? { ...p, cantidad: obtenerCantidad(p.cantidad) + 1 } : p
+      )
+    );
+  };
+
+  // Botón -
+  const disminuirCantidad = (codigo) => {
+    setProductos(
+      productos.map((p) => {
+        if (p.codigo === codigo) {
+          const nuevaCantidad = obtenerCantidad(p.cantidad) - 1;
+          return { ...p, cantidad: nuevaCantidad > 0 ? nuevaCantidad : 1 }; // Evita bajar de 1
+        }
+        return p;
+      })
+    );
+  };
+
   if (!Array.isArray(productos) || productos.length === 0) {
     return <EmptyState message="No hay productos en la venta" />;
   }
@@ -61,7 +83,23 @@ const SaleTable = ({ productos = [], setProductos }) => {
             return (
               <tr key={p?.codigo || index}>
                 <td>{nombre}</td>
-                <td>{cantidad}</td>
+                <td style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}>
+                  <button 
+                    onClick={() => disminuirCantidad(p.codigo)}
+                    style={{ width: "28px", height: "28px", cursor: "pointer", backgroundColor: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "6px", fontWeight: "bold", fontSize: "1.2rem", display: "flex", alignItems: "center", justifyContent: "center", color: "#374151" }}
+                  >
+                    -
+                  </button>
+                  <span style={{ fontWeight: "bold", minWidth: "20px", textAlign: "center" }}>
+                    {cantidad}
+                  </span>
+                  <button 
+                    onClick={() => incrementarCantidad(p.codigo)}
+                    style={{ width: "28px", height: "28px", cursor: "pointer", backgroundColor: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "6px", fontWeight: "bold", fontSize: "1.2rem", display: "flex", alignItems: "center", justifyContent: "center", color: "#374151" }}
+                  >
+                    +
+                  </button>
+                </td>
                 <td>${formatearPrecio(precio)}</td>
                 <td>${formatearPrecio(subtotal)}</td>
                 <td>
