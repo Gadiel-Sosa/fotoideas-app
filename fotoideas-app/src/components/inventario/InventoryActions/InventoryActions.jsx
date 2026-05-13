@@ -24,4 +24,4 @@ const InventoryActions = ({ onAction }) => {
   );
 };
 
-export default InventoryActions;
+export default InventoryActions

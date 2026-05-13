@@ -1,0 +1,115 @@
+/* UserAddForm.css */
+
+.user-form {
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 28px;
+
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+
+  border: 1px solid #e5e7eb;
+}
+
+/* INFO SUPERIOR */
+
+.user-top-info {
+  display: flex;
+
+  margin-bottom: 28px;
+}
+
+.user-info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-info-item label {
+  font-weight: 700;
+  color: #111827;
+}
+
+.user-info-item span {
+  color: #6b7280;
+}
+
+/* GRID */
+
+.user-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 22px;
+}
+
+.user-full {
+  grid-column: span 2;
+}
+
+/* FILA INFERIOR */
+
+.user-row {
+  display: flex;
+
+  gap: 40px;
+
+  margin-top: 24px;
+
+  flex-wrap: wrap;
+}
+
+.user-field {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  flex: 1;
+
+  min-width: 260px;
+}
+
+.user-field label {
+  font-weight: 700;
+  color: #111827;
+}
+
+.user-field select {
+  flex: 1;
+
+  padding: 10px 14px;
+
+  border: 1px solid #9ca3af;
+
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  color: #6b7280;
+
+  background: white;
+
+  outline: none;
+}
+
+/* BOTONES */
+
+.user-buttons {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 14px;
+
+  margin-top: 32px;
+}
+
+/* LABELS DE INPUT */
+
+.user-form .input-label {
+  font-weight: 700;
+  color: #111827;
+}

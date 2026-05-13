@@ -1,0 +1,5 @@
+.provider-actions {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 24px;
+}

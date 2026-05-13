@@ -36,3 +36,8 @@
 .input::placeholder {
   color: #94a3b8;
 }
+
+.input-label {
+  font-weight: 600;
+  color: #374151;
+}

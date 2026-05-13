@@ -1,0 +1,27 @@
+.user-update-top,
+.user-bottom-info {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.user-info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-info-item label {
+  font-weight: 700;
+  color: #111827;
+}
+
+.user-info-item span {
+  color: #6b7280;
+}
+
+.user-form .input-label {
+  font-weight: 700;
+  color: #111827;
+}

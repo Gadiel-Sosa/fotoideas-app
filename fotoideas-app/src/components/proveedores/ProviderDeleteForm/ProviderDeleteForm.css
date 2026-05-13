@@ -1,0 +1,82 @@
+.provider-form {
+  border: 1px solid #d1d5db;
+  padding: 24px;
+  border-radius: 10px;
+  background: white;
+  margin-top: 24px;
+}
+
+.provider-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: none;
+}
+
+.provider-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.provider-row {
+  margin-top: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.provider-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 260px;
+}
+
+.provider-field select {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 14px;
+  background: white;
+  outline: none;
+  color: #374151;
+}
+
+/* placeholder option */
+
+.provider-field select:invalid {
+  color: #9ca3af;
+}
+
+.provider-field option {
+  color: #374151;
+}

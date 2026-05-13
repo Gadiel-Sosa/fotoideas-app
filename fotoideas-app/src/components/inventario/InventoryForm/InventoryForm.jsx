@@ -57,4 +57,4 @@ const InventoryForm = () => {
   );
 };
 
-export default InventoryForm;
+export default InventoryForm

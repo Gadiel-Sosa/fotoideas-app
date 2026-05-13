@@ -51,13 +51,6 @@ const Inventario = () => {
     });
   };
 
-  // Efecto para cargar los productos cuando entramos a la pestaña "consultar"
-  useEffect(() => {
-    if (tab === "consultar") {
-      cargarProductos();
-    }
-  }, [tab]);
-
   const cargarProductos = async () => {
     try {
       const response = await fetch("http://localhost:3000/api/productos");
@@ -69,6 +62,14 @@ const Inventario = () => {
       console.error("Error al cargar inventario:", error);
     }
   };
+
+  
+  // Ejecutar la carga de productos cada vez que el usuario cambie a la pestaña "consultar"
+  useEffect(() => {
+    if (tab === "consultar") {
+      cargarProductos();
+    }
+  }, [tab]);
 
   // Función que se activa al darle click a "Editar" o "Eliminar" en la tabla
   const handleAccionDesdeTabla = (producto, nuevaAccion) => {

@@ -1,0 +1,16 @@
+.proveedores-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.proveedores-top {
+  display: flex;
+  gap: 16px;
+}
+
+.proveedores-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
