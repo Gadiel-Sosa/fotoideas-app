@@ -1,0 +1,13 @@
+.report-actions {
+  display: flex;
+
+  gap: 18px;
+
+  flex-wrap: wrap;
+
+  margin-bottom: 28px;
+}
+
+.report-action-btn {
+  min-width: 170px;
+}

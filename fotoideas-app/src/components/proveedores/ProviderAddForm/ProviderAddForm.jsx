@@ -1,67 +1,158 @@
+import "./ProviderAddForm.css";
+
+import Input from "../../ui/Input/Input";
 import Button from "../../ui/Button/Button";
-import "../../inventario/InventoryForm/InventoryForm.css"; 
 
-const ProviderAddForm = ({ formData, handleChange, accion, handleConfirmar, resetForm }) => {
+const ProviderAddForm = ({
+  formData,
+  handleChange,
+  handleConfirmar,
+  resetForm
+}) => {
+
   return (
-    <div className="inventario-content">
-      <div className="inventory-form">
-        <div className="inventory-form-grid">
-          
-          <div className="form-group">
-            <label>ID del Proveedor</label>
-            {accion === "agregar" ? (
-              <input type="text" placeholder="Autogenerado por BD" disabled style={{ backgroundColor: '#f3f4f6' }} />
-            ) : (
-              <input type="text" name="id_proveedor" value={formData.id_proveedor ?? ""} onChange={handleChange} placeholder="Ingrese ID..." />
-            )}
-          </div>
 
-          <div className="form-group">
-            <label>RFC</label>
-            <input type="text" name="RFC_proveedor" value={formData.RFC_proveedor ?? ""} onChange={handleChange} placeholder="RFC del proveedor..." disabled={accion === "borrar"} />
-          </div>
+    <div className="provider-form">
 
-          <div className="form-group">
-            <label>Nombre del Contacto</label>
-            <input type="text" name="nombre_proveedor" value={formData.nombre_proveedor ?? ""} onChange={handleChange} placeholder="Nombre completo..." disabled={accion === "borrar"} />
-          </div>
+      {/* TOP */}
 
-          <div className="form-group">
-            <label>Empresa / Razón Social</label>
-            <input type="text" name="nombre_empresa" value={formData.nombre_empresa ?? ""} onChange={handleChange} placeholder="Nombre de la empresa..." disabled={accion === "borrar"} />
-          </div>
+      <div className="provider-top-info">
 
-          <div className="form-group">
-            <label>Teléfono</label>
-            <input type="text" name="telefono_proveedor" value={formData.telefono_proveedor ?? ""} onChange={handleChange} placeholder="10 dígitos..." disabled={accion === "borrar"} />
-          </div>
+        <div className="provider-info-item">
 
-          <div className="form-group">
-            <label>Correo Electrónico</label>
-            <input type="email" name="correo_proveedor" value={formData.correo_proveedor ?? ""} onChange={handleChange} placeholder="correo@ejemplo.com..." disabled={accion === "borrar"} />
-          </div>
+          <label>ID del proveedor:</label>
 
-          <div className="form-group" style={{ gridColumn: 'span 2' }}>
-            <label>Dirección</label>
-            <textarea name="direccion_proveedor" value={formData.direccion_proveedor ?? ""} onChange={handleChange} placeholder="Dirección detallada..." disabled={accion === "borrar"} rows={2}></textarea>
-          </div>
-
-          {accion === "borrar" && (
-             <div className="form-group" style={{ gridColumn: 'span 2', textAlign: 'center', color: '#ef4444', fontWeight: 'bold' }}>
-                <p>⚠️ Atención: Esta acción eliminará permanentemente al proveedor. Solo procederá si no tiene un historial de compras asociado.</p>
-             </div>
-          )}
+          <span>
+            {formData.id_proveedor || "Auto generado por la BD"}
+          </span>
 
         </div>
+
       </div>
 
-      {/* Botones Inferiores */}
-      <div className="inventory-form-actions">
-        <Button variant="danger" onClick={resetForm}>Cancelar</Button>
-        <Button variant="primary" onClick={handleConfirmar}>Confirmar</Button>
+      {/* GRID */}
+
+      <div className="provider-grid">
+
+        <Input
+          label="Nombre del contacto"
+          name="nombre_proveedor"
+          value={formData.nombre_proveedor}
+          onChange={handleChange}
+          placeholder="Nombre del proveedor..."
+        />
+
+        <Input
+          label="Empresa / Razón social"
+          name="nombre_empresa"
+          value={formData.nombre_empresa}
+          onChange={handleChange}
+          placeholder="Nombre de la empresa..."
+        />
+
+        <Input
+          label="Teléfono"
+          name="telefono_proveedor"
+          value={formData.telefono_proveedor}
+          onChange={handleChange}
+          placeholder="Teléfono..."
+        />
+
+        <Input
+          label="Correo electrónico"
+          name="correo_proveedor"
+          type="email"
+          value={formData.correo_proveedor}
+          onChange={handleChange}
+          placeholder="Correo electrónico..."
+        />
+
+        <Input
+          label="RFC"
+          name="RFC_proveedor"
+          value={formData.RFC_proveedor}
+          onChange={handleChange}
+          placeholder="RFC..."
+        />
+
+        <Input
+          label="Dirección"
+          name="direccion_proveedor"
+          value={formData.direccion_proveedor}
+          onChange={handleChange}
+          placeholder="Dirección..."
+        />
+
       </div>
+
+      {/* FILA EXTRA */}
+
+      <div className="provider-row">
+
+        <div className="provider-field">
+
+          <label>Giro:</label>
+
+          <select defaultValue="">
+
+            <option value="" disabled>
+              Seleccione un giro...
+            </option>
+
+            <option>Tecnología</option>
+
+            <option>Papelería</option>
+
+            <option>Alimentos</option>
+
+          </select>
+
+        </div>
+
+        <div className="provider-field">
+
+          <label>Estado:</label>
+
+          <select defaultValue="">
+
+            <option value="" disabled>
+              Seleccione un estado...
+            </option>
+
+            <option>Activo</option>
+
+            <option>Inactivo</option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+      {/* BOTONES */}
+
+      <div className="provider-buttons">
+
+        <Button
+          variant="danger"
+          onClick={resetForm}
+        >
+          Cancelar
+        </Button>
+
+        <Button
+          variant="primary"
+          onClick={handleConfirmar}
+        >
+          Confirmar
+        </Button>
+
+      </div>
+
     </div>
   );
 };
 
-export default ProviderAddForm;
+export default ProviderAddForm
+
+

@@ -1,5 +1,18 @@
+
 .provider-actions {
   display: flex;
-  gap: 14px;
-  margin-bottom: 24px;
+
+  gap: 16px;
+
+  margin-bottom: 28px;
+
+  flex-wrap: wrap;
+}
+
+/* separación visual como inventario */
+.provider-actions .btn { 
+  padding: 12px 22px; 
+  font-size: 15px; 
+  border-radius: 10px; 
+  min-width: unset; 
 }

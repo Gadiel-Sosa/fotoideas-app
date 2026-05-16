@@ -1,0 +1,53 @@
+.low-stock-filters {
+  display: flex;
+
+  gap: 24px;
+
+  align-items: end;
+
+  margin-bottom: 32px;
+}
+
+.low-stock-field {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.low-stock-field label {
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.low-stock-field select {
+  padding: 12px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  min-width: 220px;
+
+  outline: none;
+
+  color: #6b7280;
+}
+
+.low-stock-content {
+  margin-bottom: 28px;
+}
+
+.low-stock-total {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+}
+
+.low-stock-total label {
+  font-weight: 700;
+}

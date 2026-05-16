@@ -10,26 +10,57 @@ const UserUpdateForm = () => {
     <div className="user-form">
 
       {/* info superior */}
+
       <div className="user-update-top">
 
         <div className="user-info-item">
+
           <label>ID del cajero:</label>
-          <span>id_cajero</span>
+
+          <span>Auto generado por la BD</span>
+
         </div>
 
-        <div className="user-info-item">
-          <label>Tipo movimiento:</label>
-          <span>tipo_movimiento</span>
+      </div>
+
+      {/* movimiento */}
+
+      <div className="user-update-row">
+
+        <div className="user-field">
+
+          <label>Tipo de movimiento:</label>
+
+          <select defaultValue="">
+
+            <option value="" disabled>
+              -- Seleccionar --
+            </option>
+
+            <option>Alta</option>
+
+            <option>Actualización</option>
+
+            <option>Baja</option>
+
+          </select>
+
         </div>
 
-        <div className="user-info-item">
+        <div className="user-description-box">
+
           <label>Descripción movimiento:</label>
-          <span>descripcion_movimiento</span>
+
+          <textarea
+            placeholder="Descripción..."
+          ></textarea>
+
         </div>
 
       </div>
 
       {/* grid */}
+
       <div className="user-grid">
 
         <Input
@@ -43,10 +74,12 @@ const UserUpdateForm = () => {
         />
 
         <div className="user-full">
+
           <Input
             label="Dirección"
             placeholder="direccion_cajero"
           />
+
         </div>
 
         <Input
@@ -57,24 +90,26 @@ const UserUpdateForm = () => {
       </div>
 
       {/* fila inferior */}
+
       <div className="user-bottom-info">
 
-        <div className="user-info-item">
-          <label>Hora movimiento:</label>
-          <span>hora_movimiento</span>
-        </div>
+        <Input
+          label="Hora movimiento"
+          type="time"
+        />
 
-        <div className="user-info-item">
-          <label>Fecha movimiento:</label>
-          <span>fecha_movimiento</span>
-        </div>
+        <Input
+          label="Fecha movimiento"
+          type="date"
+        />
 
       </div>
 
       {/* botones */}
+
       <div className="user-buttons">
 
-        <Button variant="danger">
+        <Button variant="secondary">
           Cancelar
         </Button>
 

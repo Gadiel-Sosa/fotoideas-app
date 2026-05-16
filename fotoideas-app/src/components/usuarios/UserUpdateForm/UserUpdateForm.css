@@ -1,19 +1,68 @@
-.user-update-top,
-.user-bottom-info {
+.user-form {
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 28px;
+
+  border: 1px solid #e5e7eb;
+
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+/* TOP */
+
+.user-update-top {
   display: flex;
+
   gap: 32px;
+
   flex-wrap: wrap;
+
   margin-bottom: 28px;
 }
 
+/* ROW */
+
+.user-update-row {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 28px;
+
+  margin-bottom: 28px;
+}
+
+/* GRID */
+
+.user-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 22px;
+
+  margin-bottom: 28px;
+}
+
+.user-full {
+  grid-column: span 2;
+}
+
+/* INFO */
+
 .user-info-item {
   display: flex;
+
   align-items: center;
+
   gap: 10px;
 }
 
 .user-info-item label {
   font-weight: 700;
+
   color: #111827;
 }
 
@@ -21,7 +70,106 @@
   color: #6b7280;
 }
 
-.user-form .input-label {
+/* LABELS */
+
+.user-form .input-label,
+.user-field label,
+.user-description-box label {
   font-weight: 700;
+
   color: #111827;
+}
+
+/* SELECT */
+
+.user-field {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.user-field select {
+  flex: 1;
+
+  padding: 12px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  outline: none;
+
+  color: #6b7280;
+
+  background: white;
+}
+
+/* TEXTAREA */
+
+.user-description-box {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.user-description-box textarea {
+  min-height: 90px;
+
+  resize: none;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  padding: 12px;
+
+  font-size: 14px;
+
+  color: #6b7280;
+
+  outline: none;
+}
+
+/* BOTTOM */
+
+.user-bottom-info {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 24px;
+
+  margin-top: 10px;
+}
+
+/* BUTTONS */
+
+.user-buttons {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 14px;
+
+  margin-top: 32px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+
+  .user-update-row,
+  .user-grid,
+  .user-bottom-info {
+    grid-template-columns: 1fr;
+  }
+
+  .user-full {
+    grid-column: span 1;
+  }
+
 }

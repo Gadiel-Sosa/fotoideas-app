@@ -11,7 +11,7 @@ import Inventario from "./pages/Inventario/Inventario"
 import Proveedores from "./pages/Proveedores/Proveedores"
 import Usuarios from "./pages/Usuarios/Usuarios"
 import Login from "./pages/Login"
-import Reportes from "./pages/Reportes"
+import Reportes from "./pages/Reportes/Reportes"
 import Logout from "./components/auth/LogoutButton"
 
 

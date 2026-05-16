@@ -1,0 +1,35 @@
+.report-table-container {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+
+  flex: 1;
+}
+
+.report-table-container label {
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.report-table-box {
+  min-height: 320px;
+
+  border: 1px solid #d1d5db;
+
+  background: #fafafa;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 8px;
+}
+
+.report-table-box span {
+  color: #9ca3af;
+}

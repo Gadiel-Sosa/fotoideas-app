@@ -10,7 +10,33 @@
   border: 1px solid #e5e7eb;
 }
 
-/* GRID PRINCIPAL */
+/* TOP */
+
+.provider-top-info {
+  display: flex;
+
+  margin-bottom: 28px;
+}
+
+.provider-info-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.provider-info-item label {
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.provider-info-item span {
+  color: #6b7280;
+}
+
+/* GRID */
 
 .provider-grid {
   display: grid;
@@ -20,38 +46,58 @@
   gap: 22px;
 }
 
-/* textarea */
+/* LABELS */
 
-.provider-description {
+.provider-form .input-label,
+.provider-field label {
+  font-weight: 700;
+
+  color: #111827;
+}
+
+/* FILA EXTRA */
+
+.provider-row {
   display: flex;
-  flex-direction: column;
 
-  margin-top: 24px;
+  gap: 40px;
+
+  margin-top: 28px;
+
+  flex-wrap: wrap;
 }
 
-.provider-description label {
-  margin-bottom: 10px;
+.provider-field {
+  display: flex;
 
-  font-weight: 600;
+  align-items: center;
 
-  color: #374151;
+  gap: 14px;
+
+  flex: 1;
+
+  min-width: 260px;
 }
 
-.provider-description textarea {
-  min-height: 140px;
+.provider-field select {
+  flex: 1;
 
-  border: 1px solid #cbd5e1;
+  padding: 12px 14px;
+
+  border: 1px solid #d1d5db;
 
   border-radius: 10px;
 
-  padding: 14px;
-
-  resize: none;
+  outline: none;
 
   font-size: 14px;
+
+  color: #6b7280;
+
+  background: white;
 }
 
-/* botones */
+/* BOTONES */
 
 .provider-buttons {
   display: flex;
@@ -60,46 +106,20 @@
 
   gap: 14px;
 
-  margin-top: 26px;
+  margin-top: 32px;
 }
 
-.provider-row {
-  margin-top: 24px;
-  display: flex;
-  gap: 40px;
-  flex-wrap: wrap;
-}
+/* RESPONSIVE */
 
-.provider-field {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  min-width: 260px;
-}
+@media (max-width: 768px) {
 
-.provider-field select {
-  flex: 1;
-  padding: 12px 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  font-size: 14px;
-  background: white;
-  outline: none;
-  color: #374151;
-}
+  .provider-grid {
+    grid-template-columns: 1fr;
+  }
 
-/* placeholder option */
+  .provider-row {
+    flex-direction: column;
+    gap: 18px;
+  }
 
-.provider-field select:invalid {
-  color: #9ca3af;
-}
-
-.provider-field option {
-  color: #374151;
-}
-
-.provider-field label {
-  font-weight: 600;
-  color: #374151;
 }

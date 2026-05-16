@@ -7,58 +7,91 @@ const UserDeleteForm = () => {
 
   return (
 
-    <div className="user-form">
+    <div className="user-delete-form">
 
-      {/* top */}
+      {/* FILA 1 */}
+
       <div className="user-delete-top">
 
-        <div className="user-info-item">
+        <div className="user-static-field">
+
           <label>ID del cajero:</label>
-          <span>id_cajero</span>
+
+          <span>
+            Auto generado por la BD
+          </span>
+
         </div>
-
-        <div className="user-info-item">
-          <label>Fecha movimiento:</label>
-          <span>fecha_movimiento</span>
-        </div>
-
-        <div className="user-info-item">
-          <label>Hora movimiento:</label>
-          <span>hora_movimiento</span>
-        </div>
-
-      </div>
-
-      {/* info */}
-      <div className="user-delete-content">
 
         <Input
-          label="Tipo movimiento"
-          placeholder="tipo_movimiento"
+          label="Fecha movimiento"
+          type="date"
         />
 
-        <div className="user-delete-status">
+        <Input
+          label="Hora movimiento"
+          type="time"
+        />
+
+      </div>
+
+      {/* FILA 2 */}
+
+      <div className="user-delete-row">
+
+        <div className="user-select-field">
+
+          <label>Tipo movimiento:</label>
+
+          <select defaultValue="">
+
+            <option value="" disabled>
+              -- Seleccionar --
+            </option>
+
+            <option>Baja</option>
+
+            <option>Eliminación</option>
+
+          </select>
+
+        </div>
+
+        <div className="user-select-field">
 
           <label>Estado:</label>
-          <span>estado_cajero</span>
+
+          <select defaultValue="">
+
+            <option value="" disabled>
+              -- Seleccionar --
+            </option>
+
+            <option>Activo</option>
+
+            <option>Inactivo</option>
+
+          </select>
 
         </div>
 
       </div>
 
-      {/* descripcion */}
-      <div className="user-description">
+      {/* FILA 3 */}
+
+      <div className="user-delete-description">
 
         <label>Descripción movimiento:</label>
 
         <textarea
-          placeholder="descripcion_movimiento"
+          placeholder="Descripción..."
         />
 
       </div>
 
-      {/* botones */}
-      <div className="user-buttons">
+      {/* BOTONES */}
+
+      <div className="user-delete-buttons">
 
         <Button variant="danger">
           Cancelar
@@ -71,7 +104,9 @@ const UserDeleteForm = () => {
       </div>
 
     </div>
+
   );
 };
 
 export default UserDeleteForm
+

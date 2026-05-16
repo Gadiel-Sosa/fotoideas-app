@@ -3,104 +3,164 @@ import "./ProviderUpdateForm.css";
 import Input from "../../ui/Input/Input";
 import Button from "../../ui/Button/Button";
 
-const ProviderUpdateForm = () => {
+const ProviderUpdateForm = ({
+  formData,
+  handleChange,
+  handleConfirmar,
+  resetForm
+}) => {
 
   return (
 
-    <div className="provider-form">
+    <div className="provider-update-form">
 
-      <div className="provider-grid">
+      {/* FILA 1 */}
 
-        <Input
-          label="ID proveedor"
-          placeholder="Número de proveedor..."
-        />
+      <div className="provider-update-row">
+
+        <div className="provider-static-field">
+
+          <label>ID del proveedor:</label>
+
+          <span>
+            {formData.id_proveedor || "Auto generado por la BD"}
+          </span>
+
+        </div>
 
         <Input
           label="Razón social"
+          name="Nombre de la empresa..."
+          value={formData.nombre_empresa}
+          onChange={handleChange}
           placeholder="Nombre de la empresa..."
         />
 
-        <Input
-          label="Movimiento"
-          placeholder="Tipo de movimiento..."
-        />
+      </div>
+
+      {/* FILA 2 */}
+
+      <div className="provider-update-row">
+        <div className="provider-select-field">
+          <label>Tipo movimiento:</label>
+          <select defaultValue="">
+            <option value="" disabled> -- Seleccionar -- </option>
+            <option>Alta</option> <option>Actualización</option>
+            <option>Baja</option>
+          </select>
+        </div>
+        <div className="provider-description-box">
+          <label>Descripción movimiento:</label>
+          <textarea placeholder="Descripción..." />
+        </div>
+      </div>
+
+      {/* FILA 3 */}
+
+      <div className="provider-update-row">
 
         <Input
           label="Contacto"
-          placeholder="Nombre del contacto..."
+          name="Nombre del proveedor..."
+          value={formData.nombre_proveedor}
+          onChange={handleChange}
+          placeholder="Nombre del proveedor..."
         />
 
         <Input
           label="Teléfono"
-          placeholder="Teléfono del proveedor..."
+          name="Teléfono..."
+          value={formData.telefono_proveedor}
+          onChange={handleChange}
+          placeholder="Teléfono..."
         />
+
+      </div>
+
+      {/* FILA 4 */}
+
+      <div className="provider-update-row">
 
         <Input
           label="Correo electrónico"
+          name="Correo electrónico..."
+          value={formData.correo_proveedor}
+          onChange={handleChange}
           placeholder="Correo electrónico..."
         />
 
         <Input
           label="Dirección"
+          name="Dirección..."
+          value={formData.direccion_proveedor}
+          onChange={handleChange}
           placeholder="Dirección..."
         />
 
-        <Input
-          label="Hora movimiento"
-          placeholder=""
-          type="time" 
-        />
-
-        <Input
-          label="Fecha movimiento"
-          placeholder="fecha_movimiento"
-          type = "date"
-        />
-
       </div>
 
-      <div className="provider-row">
+      {/* FILA 5 */}
 
-        <div className="provider-field">
+      <div className="provider-update-row">
+
+        <div className="provider-select-field">
+
           <label>Giro:</label>
 
-          <select defaultValue="" required>
+          <select defaultValue="">
+
             <option value="" disabled>
-              Seleccione un giro...
+              -- Seleccionar --
             </option>
+
           </select>
+
         </div>
 
-        <div className="provider-field">
+        <div className="provider-select-field">
+
           <label>Estado:</label>
 
-          <select defaultValue="" required>
+          <select defaultValue="">
+
             <option value="" disabled>
-              Seleccione un estado...
+              -- Seleccionar --
             </option>
+
           </select>
+
         </div>
 
       </div>
 
-      <div className="provider-description">
+      {/* FILA 6 */}
 
-        <label>Descripción movimiento</label>
-
-        <textarea
-          placeholder=""
+      <div className="provider-update-row">
+        <Input
+          label="Hora movimiento"
+          type="time"
         />
-
+        <Input
+          label="Fecha movimiento"
+          type="date"
+        />
       </div>
 
-      <div className="provider-buttons">
+      {/* BOTONES */}
 
-        <Button variant="danger">
+      <div className="provider-update-buttons">
+
+        <Button
+          variant="danger"
+          onClick={resetForm}
+        >
           Cancelar
         </Button>
 
-        <Button>
+        <Button
+          variant="primary"
+          onClick={handleConfirmar}
+        >
           Confirmar
         </Button>
 
@@ -111,3 +171,6 @@ const ProviderUpdateForm = () => {
 };
 
 export default ProviderUpdateForm
+
+
+

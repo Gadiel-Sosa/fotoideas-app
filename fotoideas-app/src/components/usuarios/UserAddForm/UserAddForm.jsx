@@ -14,7 +14,7 @@ const UserAddForm = () => {
 
         <div className="user-info-item">
           <label>ID del cajero:</label>
-          <span>id_cajero</span>
+          <span>Autogenerado por la BD</span>
         </div>
 
       </div>
@@ -24,18 +24,18 @@ const UserAddForm = () => {
 
         <Input
           label="Nombre del cajero"
-          placeholder="nombre_cajero"
+          placeholder="Nombre del cajero..."
         />
 
         <Input
           label="Teléfono"
-          placeholder="telefono_cajero"
+          placeholder="Teléfono..."
         />
 
         <div className="user-full">
           <Input
             label="Dirección"
-            placeholder="direccion_cajero"
+            placeholder="Dirección..."
           />
         </div>
 
@@ -46,23 +46,23 @@ const UserAddForm = () => {
 
         <Input
           label="RFC"
-          placeholder="rfc_cajero"
+          placeholder="RFC..."
         />
 
         <Input
           label="NSS"
-          placeholder="nss_cajero"
+          placeholder="NSS..."
         />
 
         <Input
           label="Usuario"
-          placeholder="nombre_usuario"
+          placeholder="Usuario..."
         />
 
         <Input
           label="Contraseña"
           type="password"
-          placeholder="contraseña_usuario"
+          placeholder="Contraseña..."
         />
 
       </div>
@@ -76,7 +76,7 @@ const UserAddForm = () => {
 
           <select defaultValue="">
             <option value="" disabled>
-              rol_cajero
+              -- Seleccionar --
             </option>
           </select>
 
@@ -88,7 +88,7 @@ const UserAddForm = () => {
 
           <select defaultValue="">
             <option value="" disabled>
-              estado_cajero
+              -- Selecionar --
             </option>
           </select>
 

@@ -1,0 +1,56 @@
+.sales-report-filters {
+  display: flex;
+
+  gap: 24px;
+
+  flex-wrap: wrap;
+
+  align-items: end;
+
+  margin-bottom: 32px;
+}
+
+.sales-filter-field {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.sales-filter-field label {
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.sales-filter-field input,
+.sales-filter-field select {
+  padding: 12px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  min-width: 200px;
+
+  outline: none;
+
+  color: #6b7280;
+}
+
+.sales-report-content {
+  margin-bottom: 28px;
+}
+
+.sales-report-total {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+}
+
+.sales-report-total label {
+  font-weight: 700;
+}

@@ -1,0 +1,19 @@
+.reportes-container {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 24px;
+}
+
+
+
+.reportes-section {
+  padding: 0;
+
+  background: transparent;
+
+  box-shadow: none;
+
+  border: none;
+}

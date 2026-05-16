@@ -1,0 +1,40 @@
+.best-report-filters {
+  display: flex;
+
+  gap: 24px;
+
+  flex-wrap: wrap;
+
+  align-items: end;
+
+  margin-bottom: 32px;
+}
+
+.best-filter-field {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.best-filter-field label {
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.best-filter-field input,
+.best-filter-field select {
+  padding: 12px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  min-width: 200px;
+
+  outline: none;
+
+  color: #6b7280;
+}
