@@ -1,18 +1,19 @@
 CREATE TABLE Sucursal (
     id_sucursal SERIAL PRIMARY KEY,
-    nombre_sucursal VARCHAR(20) NOT NULL,
-    correo_sucursal VARCHAR(20),
+    nombre_sucursal VARCHAR(100) NOT NULL,
+    correo_sucursal VARCHAR(100),
     direccion_sucursal TEXT,
     telefono_sucursal VARCHAR(10)
 );
 
 CREATE TABLE Producto (
     id_producto SERIAL PRIMARY KEY,
-    nombre_producto VARCHAR(20) NOT NULL,
-    marca_producto VARCHAR(20),
+    nombre_producto VARCHAR(100) NOT NULL,
+    marca_producto VARCHAR(50),
     precio_venta DECIMAL(10,2) NOT NULL,
     codigo_barras_producto VARCHAR(13) UNIQUE,
-    descripcion TEXT
+    descripcion TEXT,
+    estado_producto VARCHAR(20) DEFAULT 'activo'
 );
 
 CREATE TABLE Proveedor (
@@ -43,7 +44,7 @@ CREATE TABLE Admin (
 CREATE TABLE Empleado (
     id_empleado SERIAL PRIMARY KEY,
     id_sucursal INTEGER NOT NULL,
-    nombre_empleado VARCHAR(20) NOT NULL,
+    nombre_empleado VARCHAR(100) NOT NULL,
     telefono_empleado VARCHAR(20),
     direccion_empleado TEXT,
     fecha_nacimiento DATE,
@@ -55,7 +56,7 @@ CREATE TABLE Empleado (
 CREATE TABLE Credencial (
     id_credencial SERIAL PRIMARY KEY,
     id_empleado INTEGER NOT NULL UNIQUE,
-    username VARCHAR(20) NOT NULL UNIQUE,
+    username VARCHAR(50) NOT NULL UNIQUE,
     contraseña_usuario VARCHAR(12) NOT NULL,
     estado_credencial BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (id_empleado) REFERENCES Empleado(id_empleado),
@@ -64,7 +65,7 @@ CREATE TABLE Credencial (
 
 CREATE TABLE Corte_caja (
     id_corte_caja SERIAL PRIMARY KEY,
-    id_empleado INTEGER NOT NULL UNIQUE,
+    id_empleado INTEGER NOT NULL,
     fecha_corte DATE NOT NULL,
     hora_corte TIME NOT NULL,
     monto_inicial DECIMAL(10,2),

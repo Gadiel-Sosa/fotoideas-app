@@ -1,6 +1,6 @@
 import "./ReportTable.css";
 
-const ReportTable = ({ title, placeholder }) => {
+const ReportTable = ({ title, placeholder, children }) => {
 
   return (
 
@@ -8,9 +8,9 @@ const ReportTable = ({ title, placeholder }) => {
 
       <label>{title}</label>
 
-      <div className="report-table-box">
+      <div className="report-table-box" style={{ overflowX: 'auto' }}>
 
-        <span>{placeholder}</span>
+        {children ? children : <span>{placeholder}</span>}
 
       </div>
 

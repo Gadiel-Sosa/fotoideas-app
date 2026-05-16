@@ -294,11 +294,12 @@ app.get('/api/productos/codigo/:codigo', async (req, res) => {
 // Obtener datos para el corte de caja (ventas del turno, cajero, etc.)
 app.get('/api/corte/datos', async (req, res) => {
   try {
-    // Obtener el empleado actual (ejemplo: id_empleado = 1)
+    // Obtener el id_empleado desde la petición (si no llega, usa 1 por defecto)
+    const id_empleado = req.query.id_empleado || 1;
     const empleadoResult = await pool.query(
       `SELECT id_empleado, nombre_empleado 
        FROM Empleado 
-       WHERE id_empleado = 1`  // Cambiar por el ID del usuario logueado
+       WHERE id_empleado = $1`, [id_empleado]
     );
 
     // Obtener el corte de caja activo (el último que no ha sido cerrado)
@@ -347,16 +348,15 @@ app.get('/api/corte/datos', async (req, res) => {
 app.post('/api/corte/realizar', async (req, res) => {
   const { 
     id_corte,
+    monto_inicial, // Recibido desde el frontend
     efectivo_real, 
     pago_proveedores, 
-    observaciones_corte 
+    observaciones_corte,
+    id_empleado // Recibido desde el frontend
   } = req.body;
 
   try {
-    // Obtener el empleado actual
-    const empleadoResult = await pool.query(
-      `SELECT id_empleado FROM Empleado WHERE id_empleado = 1`
-    );
+    const idEmp = id_empleado || 1;
 
     // Obtener ventas del turno y monto inicial
     const ventasResult = await pool.query(
@@ -364,32 +364,51 @@ app.post('/api/corte/realizar', async (req, res) => {
        FROM Venta 
        WHERE id_empleado = $1 
        AND fecha_venta = CURRENT_DATE`,
-      [empleadoResult.rows[0].id_empleado]
-    );
-
-    const corteActivoResult = await pool.query(
-      `SELECT monto_inicial FROM Corte_caja 
-       WHERE id_corte_caja = $1`,
-      [id_corte]
+      [idEmp]
     );
 
     const ventasTotales = parseFloat(ventasResult.rows[0].total_ventas);
-    const montoInicial = parseFloat(corteActivoResult.rows[0].monto_inicial);
-    const efectivoEsperado = montoInicial + ventasTotales;
+    
+    // Determinar monto inicial (del frontend si se envió, si no, lo buscamos)
+    let montoInicialFinal = parseFloat(monto_inicial) || 0;
+    
+    if (id_corte && montoInicialFinal === 0) {
+      const corteActivoResult = await pool.query(
+        `SELECT monto_inicial FROM Corte_caja 
+         WHERE id_corte_caja = $1`,
+        [id_corte]
+      );
+      if (corteActivoResult.rows.length > 0) {
+        montoInicialFinal = parseFloat(corteActivoResult.rows[0].monto_inicial);
+      }
+    }
+
+    const efectivoEsperado = montoInicialFinal + ventasTotales;
     const diferencia_caja = efectivo_real - efectivoEsperado;
 
-    // Actualizar el corte con los valores finales
-    await pool.query(
-      `UPDATE Corte_caja 
-       SET efectivo_esperado = $1,
-           efectivo_real = $2,
-           diferencia_caja = $3,
-           pago_proveedores = $4,
-           observaciones_corte = $5,
-           hora_corte = CURRENT_TIME
-       WHERE id_corte_caja = $6`,
-      [efectivoEsperado, efectivo_real, diferencia_caja, pago_proveedores, observaciones_corte, id_corte]
-    );
+    if (id_corte) {
+      // Actualizar el corte existente con los valores finales
+      await pool.query(
+        `UPDATE Corte_caja 
+         SET monto_inicial = $1,
+             efectivo_esperado = $2,
+             efectivo_real = $3,
+             diferencia_caja = $4,
+             pago_proveedores = $5,
+             observaciones_corte = $6,
+             hora_corte = CURRENT_TIME
+         WHERE id_corte_caja = $7`,
+        [montoInicialFinal, efectivoEsperado, efectivo_real, diferencia_caja, pago_proveedores, observaciones_corte, id_corte]
+      );
+    } else {
+      // Si no existía un turno abierto, creamos el registro del corte
+      await pool.query(
+        `INSERT INTO Corte_caja 
+         (id_empleado, monto_inicial, fecha_corte, hora_corte, efectivo_esperado, efectivo_real, diferencia_caja, pago_proveedores, observaciones_corte)
+         VALUES ($1, $2, CURRENT_DATE, CURRENT_TIME, $3, $4, $5, $6, $7)`,
+        [idEmp, montoInicialFinal, efectivoEsperado, efectivo_real, diferencia_caja, pago_proveedores, observaciones_corte]
+      );
+    }
 
     res.json({
       success: true,
@@ -539,5 +558,229 @@ app.delete('/api/ventas/:id', async (req, res) => {
     res.status(500).json({ success: false, error: "Error del servidor al cancelar venta" });
   } finally {
     client.release();
+  }
+});
+
+// ==========================================
+// ENDPOINTS PARA USUARIOS / EMPLEADOS
+// ==========================================
+
+// Obtener todos los empleados y sus credenciales
+app.get('/api/usuarios', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT e.id_empleado, e.nombre_empleado, e.telefono_empleado, e.direccion_empleado, 
+             e.fecha_nacimiento, e.rfc_empleado, e.nss_empleado, e.id_sucursal,
+             c.id_credencial, c.username, c.estado_credencial,
+             er.id_rol, r.nombre_rol
+      FROM Empleado e
+      LEFT JOIN Credencial c ON e.id_empleado = c.id_empleado
+      LEFT JOIN Empleado_Rol er ON e.id_empleado = er.id_empleado
+      LEFT JOIN Rol_user r ON er.id_rol = r.id_rol
+      ORDER BY e.id_empleado DESC
+    `);
+    res.json({ success: true, usuarios: result.rows });
+  } catch (err) {
+    console.error("Error al obtener usuarios:", err);
+    res.status(500).json({ success: false, error: 'Error al obtener usuarios' });
+  }
+});
+
+// Crear un nuevo empleado y su credencial
+app.post('/api/usuarios', async (req, res) => {
+  const { nombre_empleado, telefono_empleado, direccion_empleado, fecha_nacimiento, rfc_empleado, nss_empleado, id_sucursal, username, password, id_rol } = req.body;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // 1. Insertar Empleado
+    const empRes = await client.query(
+      `INSERT INTO Empleado (nombre_empleado, telefono_empleado, direccion_empleado, fecha_nacimiento, rfc_empleado, nss_empleado, id_sucursal)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id_empleado`,
+      [nombre_empleado, telefono_empleado || null, direccion_empleado || null, fecha_nacimiento || null, rfc_empleado || null, nss_empleado || null, id_sucursal || 1]
+    );
+    
+    const id_empleado = empRes.rows[0].id_empleado;
+    
+    // 2. Insertar Credencial si se proporcionó usuario y contraseña
+    if (username && password) {
+      await client.query(
+        `INSERT INTO Credencial (id_empleado, username, contraseña_usuario, estado_credencial)
+         VALUES ($1, $2, $3, TRUE)`,
+        [id_empleado, username, password]
+      );
+    }
+    
+    // 3. Insertar Rol
+    if (id_rol) {
+      await client.query(
+        `INSERT INTO Empleado_Rol (id_empleado, id_rol) VALUES ($1, $2)`,
+        [id_empleado, id_rol]
+      );
+    }
+
+    await client.query('COMMIT');
+    res.json({ success: true, message: 'Usuario registrado exitosamente', id_empleado });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error("Error al registrar usuario:", error);
+    res.status(500).json({ success: false, error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Actualizar empleado y credencial
+app.put('/api/usuarios/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nombre_empleado, telefono_empleado, direccion_empleado, fecha_nacimiento, rfc_empleado, nss_empleado, username, password, estado_credencial, id_rol } = req.body;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // Actualizar Empleado
+    await client.query(
+      `UPDATE Empleado 
+       SET nombre_empleado=$1, telefono_empleado=$2, direccion_empleado=$3, fecha_nacimiento=$4, rfc_empleado=$5, nss_empleado=$6
+       WHERE id_empleado=$7`,
+      [nombre_empleado, telefono_empleado || null, direccion_empleado || null, fecha_nacimiento || null, rfc_empleado || null, nss_empleado || null, id]
+    );
+    
+    // Manejar credenciales
+    if (username) {
+      const credCheck = await client.query(`SELECT id_credencial FROM Credencial WHERE id_empleado=$1`, [id]);
+      if (credCheck.rows.length > 0) {
+         let query = `UPDATE Credencial SET username=$1, estado_credencial=$2`;
+         let params = [username, estado_credencial !== undefined ? estado_credencial : true];
+         
+         if (password && password.trim() !== '') {
+           query += `, contraseña_usuario=$3 WHERE id_empleado=$4`;
+           params.push(password, id);
+         } else {
+           query += ` WHERE id_empleado=$3`;
+           params.push(id);
+         }
+         await client.query(query, params);
+      } else if (password) {
+         await client.query(
+          `INSERT INTO Credencial (id_empleado, username, contraseña_usuario, estado_credencial) VALUES ($1, $2, $3, $4)`,
+          [id, username, password, estado_credencial !== undefined ? estado_credencial : true]
+         );
+      }
+    }
+    
+    // Manejar Rol
+    if (id_rol) {
+      const rolCheck = await client.query(`SELECT id_rol FROM Empleado_Rol WHERE id_empleado=$1`, [id]);
+      if (rolCheck.rows.length > 0) {
+        await client.query(`UPDATE Empleado_Rol SET id_rol=$1 WHERE id_empleado=$2`, [id_rol, id]);
+      } else {
+        await client.query(
+          `INSERT INTO Empleado_Rol (id_empleado, id_rol) VALUES ($1, $2)`,
+          [id, id_rol]
+        );
+      }
+    }
+
+    await client.query('COMMIT');
+    res.json({ success: true, message: 'Usuario actualizado exitosamente' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error("Error al actualizar usuario:", error);
+    res.status(500).json({ success: false, error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Dar de baja un usuario (Borrado lógico)
+app.delete('/api/usuarios/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query(`UPDATE Credencial SET estado_credencial = FALSE WHERE id_empleado = $1`, [id]);
+    res.json({ success: true, message: 'Usuario desactivado exitosamente' });
+  } catch (error) {
+    console.error("Error al desactivar usuario:", error);
+    res.status(500).json({ success: false, error: 'Error al desactivar usuario' });
+  }
+});
+
+// ==========================================
+// ENDPOINTS PARA REPORTES
+// ==========================================
+
+
+// 1. Reporte de Ventas por periodo
+app.get('/api/reportes/ventas', async (req, res) => {
+  const { inicio, fin } = req.query;
+  try {
+    const result = await pool.query(
+      `SELECT v.id_venta, v.fecha_venta, v.hora_venta, v.total_venta, v.forma_pago, e.nombre_empleado
+       FROM Venta v
+       JOIN Empleado e ON v.id_empleado = e.id_empleado
+       WHERE v.fecha_venta BETWEEN $1 AND $2
+       ORDER BY v.fecha_venta DESC, v.hora_venta DESC`,
+      [inicio, fin]
+    );
+    res.json({ success: true, datos: result.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 2. Reporte de Productos Más Vendidos
+app.get('/api/reportes/mas-vendidos', async (req, res) => {
+  const { inicio, fin } = req.query;
+  try {
+    const result = await pool.query(
+      `SELECT p.codigo_barras_producto as codigo, p.nombre_producto as nombre, 
+              SUM(dv.cantidad_venta) as total_vendido, 
+              SUM(dv.cantidad_venta * p.precio_venta) as ingresos
+       FROM Detalle_venta dv
+       JOIN Producto p ON dv.id_producto = p.id_producto
+       JOIN Venta v ON dv.id_venta = v.id_venta
+       WHERE v.fecha_venta BETWEEN $1 AND $2
+       GROUP BY p.id_producto
+       ORDER BY total_vendido DESC
+       LIMIT 15`,
+      [inicio, fin]
+    );
+    res.json({ success: true, datos: result.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 3. Reporte de Stock Bajo
+app.get('/api/reportes/stock-bajo', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT p.codigo_barras_producto as codigo, p.nombre_producto as nombre, p.precio_venta, i.cantidad_inventario as stock
+       FROM Producto p
+       JOIN Inventario i ON p.id_producto = i.id_producto
+       WHERE i.cantidad_inventario <= 10
+       ORDER BY stock ASC`
+    );
+    res.json({ success: true, datos: result.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 4. Reporte de Compras/Pagos a Proveedores
+app.get('/api/reportes/compras-proveedor', async (req, res) => {
+  const { inicio, fin } = req.query;
+  try {
+    const result = await pool.query(
+      `SELECT c.id_corte_caja, c.fecha_corte, c.hora_corte, c.pago_proveedores, e.nombre_empleado 
+       FROM Corte_caja c
+       JOIN Empleado e ON c.id_empleado = e.id_empleado
+       WHERE c.fecha_corte BETWEEN $1 AND $2 AND c.pago_proveedores > 0
+       ORDER BY c.fecha_corte DESC`,
+      [inicio, fin]
+    );
+    res.json({ success: true, datos: result.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
 });

@@ -37,7 +37,7 @@ const SaleSummary = ({ productos, setProductos, rol, onCobrar }) => {
       const usuarioLocal = JSON.parse(localStorage.getItem("user"));
       
       // Consultamos al backend cuál es el turno (corte) que está activo en este momento
-      const corteResponse = await fetch("http://localhost:3000/api/corte/datos");
+      const corteResponse = await fetch(`http://localhost:3000/api/corte/datos?id_empleado=${usuarioLocal ? usuarioLocal.id_empleado : 1}`);
       const corteData = await corteResponse.json();
       const idCorteActivo = corteData.success && corteData.datos.id_corte ? corteData.datos.id_corte : 1;
 

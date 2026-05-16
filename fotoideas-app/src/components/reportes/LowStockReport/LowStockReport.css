@@ -51,3 +51,44 @@
 .low-stock-total label {
   font-weight: 700;
 }
+
+/* Estilos para la tabla del reporte */
+.report-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 600px;
+}
+
+.report-data-table th {
+  padding: 12px;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.report-data-table td {
+  padding: 12px;
+  color: #4b5563;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.report-data-table td.font-medium {
+  font-weight: 500;
+  color: #111827;
+}
+
+.report-data-table td.font-bold {
+  font-weight: 600;
+  color: #111827;
+}
+
+.report-data-table td.text-success {
+  font-weight: bold;
+  color: #10b981;
+}
+
+.report-data-table td.text-danger {
+  font-weight: bold;
+  color: #ef4444;
+}

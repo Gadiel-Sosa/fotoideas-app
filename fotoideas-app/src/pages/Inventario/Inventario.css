@@ -33,10 +33,26 @@
   margin: 20px 0;          /* espacio arriba y abajo */
 }
 
+/* Poner en negrita los títulos (labels) de los campos de los formularios.
+   Aplica para Inventario, y al compartir el componente Input, también a Proveedores y Usuarios */
+.input-wrapper label,
+.user-field label,
+.user-info-item label,
+.user-static-field label,
+form label {
+  font-weight: 700 !important;
+}
+
 /* 1. Botones de Acción Superiores */
 .inventario-actions {
   display: flex;
   gap: 12px;
   margin-bottom: 24px;
   flex-wrap: wrap;
+}
+
+.inventario-table-bold,
+.inventario-table-bold th {
+  font-weight: 600;
+  color: #111827;
 }

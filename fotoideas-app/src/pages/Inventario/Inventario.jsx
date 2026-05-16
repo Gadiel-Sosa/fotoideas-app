@@ -215,10 +215,12 @@ const Inventario = () => {
 
           {tab === "consultar" && (
             <Section className="inventario-section">
-              <InventoryTable
-                productos={productos}
-                handleAccionDesdeTabla={handleAccionDesdeTabla}
-              />
+              <div className="inventario-table-bold">
+                <InventoryTable
+                  productos={productos}
+                  handleAccionDesdeTabla={handleAccionDesdeTabla}
+                />
+              </div>
             </Section>
           )}
 

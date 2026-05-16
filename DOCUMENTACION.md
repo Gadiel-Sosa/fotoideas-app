@@ -26,9 +26,11 @@ Se eligió **Docker** para desplegar la base de datos **PostgreSQL**. Esta decis
 *   **Tablas identificadas en el flujo:**
     *   `Empleado` y `Credencial`: Para la autenticación.
     *   `Sesion`: Para registrar la auditoría y control de accesos.
+    *   `Rol_user` y `Empleado_Rol`: Para la gestión de privilegios y permisos (ej. Admin vs Cajero).
     *   `Producto` e `Inventario`: Para el catálogo y existencias.
     *   `Proveedor`: Para gestionar a los surtidores de insumos.
-    *   `Venta`: Almacena el histórico de ventas.
+    *   `Venta` y `Detalle_venta`: Almacenan el histórico general de ingresos y los productos específicos vendidos en cada transacción.
+    *   `Cancelar_venta`: Registra las justificaciones de anulaciones (borrado lógico), manteniendo el historial intacto para auditorías.
     *   `Corte_caja`: Registra aperturas, flujos y cierres de dinero por turnos.
 
 ---

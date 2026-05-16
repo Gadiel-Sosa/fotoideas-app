@@ -11,11 +11,11 @@ const CorteCaja = () => {
     id_corte: null,
     cajero: "",
     ventasTotales: 0,
-    montoInicial: 0,
+    montoInicial: "",
     efectivoEsperado: 0,
-    efectivoReal: 0,
+    efectivoReal: "",
     diferenciaCaja: 0,
-    pagoProveedores: 0,
+    pagoProveedores: "",
     observaciones: ""
   });
 
@@ -27,13 +27,18 @@ const CorteCaja = () => {
   const cargarDatosCorte = async () => {
     try {
       setLoading(true);
-      const datos = await obtenerDatosCorte();
+      
+      // Obtenemos el usuario activo de la sesión desde el LocalStorage
+      const usuarioLocal = JSON.parse(localStorage.getItem("user"));
+      const idEmpleado = usuarioLocal ? usuarioLocal.id_empleado : 1;
+
+      const datos = await obtenerDatosCorte(idEmpleado);
       setCorte({
         ...corte,
         id_corte: datos.id_corte,
         cajero: datos.cajero,
         ventasTotales: datos.ventasTotales,
-        montoInicial: datos.montoInicial,
+        montoInicial: datos.montoInicial === 0 ? "" : datos.montoInicial,
         efectivoEsperado: datos.efectivoEsperado
       });
     } catch (error) {
@@ -44,14 +49,30 @@ const CorteCaja = () => {
     }
   };
 
+  const handleMontoInicialChange = (e) => {
+    const val = e.target.value;
+    const numMonto = val === "" ? 0 : parseFloat(val);
+    const ventas = parseFloat(corte.ventasTotales) || 0;
+    const esperado = numMonto + ventas;
+    const real = corte.efectivoReal === "" ? 0 : parseFloat(corte.efectivoReal);
+
+    setCorte({
+      ...corte,
+      montoInicial: val,
+      efectivoEsperado: esperado,
+      diferenciaCaja: real - esperado
+    });
+  };
+
   const handleEfectivoRealChange = (e) => {
-    const efectivoReal = parseFloat(e.target.value) || 0;
-    const diferencia = efectivoReal - corte.efectivoEsperado;
+    const val = e.target.value;
+    const real = val === "" ? 0 : parseFloat(val);
+    const esperado = parseFloat(corte.efectivoEsperado) || 0;
     
     setCorte({
       ...corte,
-      efectivoReal: efectivoReal,
-      diferenciaCaja: diferencia
+      efectivoReal: val,
+      diferenciaCaja: real - esperado
     });
   };
 
@@ -66,28 +87,34 @@ const CorteCaja = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (corte.efectivoReal === 0) {
+    if (corte.efectivoReal === "" || parseFloat(corte.efectivoReal) === 0) {
       alert("Debe ingresar el efectivo contado");
       return;
     }
 
+    // Obtenemos el usuario activo de la sesión para registrar el corte a su nombre
+    const usuarioLocal = JSON.parse(localStorage.getItem("user"));
+    const idEmpleado = usuarioLocal ? usuarioLocal.id_empleado : 1;
+
     try {
       const resultado = await realizarCorte({
         id_corte: corte.id_corte,
-        efectivo_real: corte.efectivoReal,
-        pago_proveedores: corte.pagoProveedores,
-        observaciones_corte: corte.observaciones
+        monto_inicial: parseFloat(corte.montoInicial) || 0,
+        efectivo_real: parseFloat(corte.efectivoReal) || 0,
+        pago_proveedores: parseFloat(corte.pagoProveedores) || 0,
+        observaciones_corte: corte.observaciones,
+        id_empleado: idEmpleado // Enviamos el ID dinámico al backend
       });
 
       alert(`Corte realizado exitosamente\nDiferencia: $${resultado.datos.diferencia_caja.toFixed(2)}`);
       
-      // Recargar datos o resetear formulario
+      // Recargar datos
       cargarDatosCorte();
       setCorte({
         ...corte,
-        efectivoReal: 0,
+        efectivoReal: "",
         diferenciaCaja: 0,
-        pagoProveedores: 0,
+        pagoProveedores: "",
         observaciones: ""
       });
     } catch (error) {
@@ -134,9 +161,11 @@ const CorteCaja = () => {
           <div className="corte-col">
             <Input
               label="Fondo de caja"
+              name="montoInicial"
               type="number"
-              value={corte.montoInicial.toFixed(2)}
-              readOnly
+              value={corte.montoInicial}
+              onChange={handleMontoInicialChange}
+              placeholder="0.00"
             />
             <Input
               label="Diferencias en caja"

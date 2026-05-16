@@ -1,61 +1,53 @@
-import { useState } from "react";
-
 import Button from "../../ui/Button/Button";
-
-import UserAddForm from "../UserAddForm/UserAddForm";
-import UserUpdateForm from "../UserUpdateForm/UserUpdateForm";
-import UserDeleteForm from "../UserDeleteForm/UserDeleteForm";
 
 import "./UserActions.css";
 
-const UserActions = () => {
-
-  const [tab, setTab] = useState("agregar");
+const UserActions = ({ accion, setAccion, resetForm }) => {
 
   const tabs = [
     {
       name: "Agregar",
-      value: "agregar"
+      value: "agregar",
+      variant: "primary"
     },
     {
       name: "Actualizar",
-      value: "actualizar"
+      value: "actualizar",
+      variant: "primary"
     },
     {
       name: "Borrar",
-      value: "borrar"
+      value: "borrar",
+      variant: "primary"
     }
   ];
 
   return (
-    <>
-      <div className="user-actions">
+    <div className="user-actions">
 
-        {tabs.map((item) => (
+      {tabs.map((item) => (
 
-          <Button
-            key={item.value}
-            variant={
-              tab === item.value
-                ? "primary"
-                : "secondary"
+        <Button
+          key={item.value}
+          variant={
+            accion === item.value
+              ? item.variant
+              : "secondary"
+          }
+          onClick={() => {
+            if (item.value === "agregar") {
+              resetForm();
             }
-            onClick={() => setTab(item.value)}
-          >
-            {item.name}
-          </Button>
+            setAccion(item.value);
+          }}
+        >
+          {item.name}
+        </Button>
 
-        ))}
+      ))}
 
-      </div>
-
-      {tab === "agregar" && <UserAddForm />}
-
-      {tab === "actualizar" && <UserUpdateForm />}
-
-      {tab === "borrar" && <UserDeleteForm />}
-    </>
+    </div>
   );
 };
 
-export default UserActions
+export default UserActions;

@@ -1,9 +1,9 @@
 const API_URL = "http://localhost:3000/api/corte";
 
 // Obtener datos para el corte
-export const obtenerDatosCorte = async () => {
+export const obtenerDatosCorte = async (idEmpleado = 1) => {
   try {
-    const response = await fetch(`${API_URL}/datos`);
+    const response = await fetch(`${API_URL}/datos?id_empleado=${idEmpleado}`);
     if (!response.ok) throw new Error("Error al obtener datos");
     const data = await response.json();
     return data.datos;
