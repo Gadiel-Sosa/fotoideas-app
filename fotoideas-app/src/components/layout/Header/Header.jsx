@@ -1,32 +1,41 @@
 import "./Header.css";
-import { FaSearch, FaEnvelope } from "react-icons/fa";
 
-const Header = () => {
+import { FaEnvelope } from "react-icons/fa";
+
+import SearchBar from "../SearchBar/SearchBar";
+
+const Header = ({
+  showSearch = false,
+  searchValue = "",
+  onSearchChange
+}) => {
+
   return (
+
     <header className="header">
 
       <div className="header-logo">
         FOTOIDEAS
       </div>
 
-      <div className="header-search">
-        <FaSearch className="search-icon" />
-
-        <input
-          type="text"
-          placeholder="Search"
-          className="search-input"
+      {showSearch && (
+        <SearchBar
+          value={searchValue}
+          onChange={onSearchChange}
+          placeholder="Buscar..."
         />
-      </div>
+      )}
 
       <div className="header-actions">
+
         <FaEnvelope />
 
         <span className="notification-dot"></span>
+
       </div>
 
     </header>
   );
 };
 
-export default Header;
+export default Header

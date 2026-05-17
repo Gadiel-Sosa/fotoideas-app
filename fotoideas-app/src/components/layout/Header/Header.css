@@ -22,34 +22,7 @@
   font-weight: 800;
   line-height: 1;
 }
-/* buscador */
-.header-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
 
-.search-icon {
-  position: absolute;
-  left: 14px;
-  font-size: 14px;
-  color: #666;
-}
-
-.search-input {
-  width: 190px;
-  height: 34px;
-
-
-  border: 1px solid #999;
-  border-radius: 25px;
-
-  padding-left: 36px;
-  padding-right: 12px;
-
-  outline: none;
-  background: #efefef;
-}
 
 /* icono derecha */
 .header-actions {

@@ -35,6 +35,8 @@ const Usuarios = () => {
   const [accion, setAccion] = useState("agregar");
   const [usuariosList, setUsuariosList] = useState([]);
   const [formData, setFormData] = useState(initialUserState);
+  const [search, setSearch] = useState("");
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -67,7 +69,7 @@ const Usuarios = () => {
   const handleAccionDesdeTabla = (usuario, nuevaAccion) => {
     setAccion(nuevaAccion);
     setTab("gestionar");
-    
+
     // Formatear la fecha para que el input type="date" la entienda (YYYY-MM-DD)
     let fechaNac = "";
     try {
@@ -97,8 +99,8 @@ const Usuarios = () => {
 
   const handleConfirmar = async () => {
     // Validar longitud de la contraseña por seguridad
-    if ((accion === "agregar" || (accion === "actualizar" && formData.password)) && 
-        (formData.password.length < 8 || formData.password.length > 12)) {
+    if ((accion === "agregar" || (accion === "actualizar" && formData.password)) &&
+      (formData.password.length < 8 || formData.password.length > 12)) {
       alert("Por seguridad, la contraseña debe tener entre 8 y 12 caracteres.");
       return;
     }
@@ -135,9 +137,26 @@ const Usuarios = () => {
     }
   };
 
+  const filteredUsers = usuariosList.filter((usuario) => {
+
+  const texto = search.toLowerCase();
+
+  return (
+    usuario.nombre_empleado?.toLowerCase().includes(texto) ||
+    usuario.username?.toLowerCase().includes(texto) ||
+    usuario.telefono_empleado?.includes(texto) ||
+    usuario.rfc_empleado?.toLowerCase().includes(texto)
+  );
+
+});
+
   return (
     <>
-      <Header />
+      <Header
+        showSearch={tab === "consultar"}
+        searchValue={search}
+        onSearchChange={(e) => setSearch(e.target.value)}
+      />
 
       <PageContainer>
 
@@ -167,9 +186,9 @@ const Usuarios = () => {
             <Section className="usuarios-section">
 
               <div className="user-actions-wrapper">
-                <UserActions 
-                  accion={accion} 
-                  setAccion={setAccion} 
+                <UserActions
+                  accion={accion}
+                  setAccion={setAccion}
                   resetForm={resetForm}
                 />
 
@@ -206,8 +225,8 @@ const Usuarios = () => {
           {tab === "consultar" && (
             <Section className="usuarios-section">
 
-              <UserTable 
-                usuarios={usuariosList}
+              <UserTable
+                usuarios={filteredUsers}
                 handleAccionDesdeTabla={handleAccionDesdeTabla}
               />
 

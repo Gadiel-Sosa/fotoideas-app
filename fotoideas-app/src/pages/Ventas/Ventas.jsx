@@ -9,6 +9,7 @@ import PaymentPanel from "../../components/ventas/PaymentPanel/PaymentPanel";
 import SaleSummary from "../../components/ventas/SaleSummary/SaleSummary";
 import ConsultarVentas from "../../components/ventas/ConsultarVentas/ConsultarVentas";
 import CorteCaja from "../../components/ventas/CorteCaja/CorteCaja";
+import ConsultarCorteCaja from "../../components/ventas/ConsultarCorteCaja/ConsultarCorteCaja";
 
 import PageContainer from "../../components/ui/PageContainer/PageContainer";
 import Section from "../../components/ui/Section/Section";
@@ -25,6 +26,8 @@ const Ventas = () => {
   const [ventas, setVentas] = useState([]);
   const [tab, setTab] = useState("registrar");
   const [paymentMethod, setPaymentMethod] = useState("Efectivo");
+  const [search, setSearch] = useState("");
+
 
   // AGREGAR PRODUCTO POR CÓDIGO DE BARRAS
   const handleAddProduct = async (codigo) => {
@@ -40,7 +43,7 @@ const Ventas = () => {
         alert("Producto no encontrado");
         return;
       }
-      
+
       // Emitir un sonido de "Beep" exitoso
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -119,7 +122,11 @@ const Ventas = () => {
 
   return (
     <>
-      <Header />
+      <Header
+        searchValue={search}
+        onSearchChange={(e) => setSearch(e.target.value)}
+      />
+
       <PageContainer>
         <SaleHeader
           saleNumber={ventas.length + 1}
@@ -144,14 +151,20 @@ const Ventas = () => {
             Consultar Ventas
           </Button>
 
-
-
           <Button
             variant={tab === "corte" ? "primary" : "secondary"}
             onClick={() => setTab("corte")}
           >
             Corte de Caja
           </Button>
+
+          <Button
+            variant={tab === "Consultarcorte" ? "primary" : "secondary"}
+            onClick={() => setTab("Consultarcorte")}
+          >
+            Corte de Caja
+          </Button>
+
         </div>
 
         <br />
@@ -199,9 +212,15 @@ const Ventas = () => {
             <CorteCaja />
           </Section>
         )}
+
+        {tab === "consultarcorte" && (
+          <Section>
+            <ConsultarCorteCaja />
+          </Section>
+        )}
       </PageContainer>
     </>
   )
 }
 
-export default Ventas;
+export default Ventas

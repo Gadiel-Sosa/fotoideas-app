@@ -1,0 +1,95 @@
+.ticket-prompt-overlay {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background-color: rgba(0,0,0,0.6);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+}
+
+.ticket-prompt-modal {
+  background-color: white;
+
+  border-radius: 12px;
+
+  padding: 24px;
+
+  width: 400px;
+  max-width: 90%;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 20px;
+
+  text-align: center;
+
+  font-family: inherit;
+}
+
+.ticket-prompt-modal h3 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 1.4rem;
+}
+
+.ticket-prompt-modal p {
+  margin: 0;
+
+  color: #4b5563;
+}
+
+.ticket-prompt-question {
+  color: #111827 !important;
+
+  font-weight: bold;
+
+  font-size: 1.1rem;
+}
+
+.ticket-prompt-buttons {
+  display: flex;
+
+  justify-content: center;
+
+  gap: 12px;
+
+  margin-top: 12px;
+}
+
+.ticket-prompt-cancel,
+.ticket-prompt-confirm {
+  padding: 10px 18px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  font-weight: bold;
+
+  font-size: 0.95rem;
+
+  color: white;
+}
+
+.ticket-prompt-cancel {
+  background-color: #6b7280;
+}
+
+.ticket-prompt-confirm {
+  background-color: #3b82f6;
+}

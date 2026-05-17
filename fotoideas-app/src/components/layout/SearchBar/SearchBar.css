@@ -1,0 +1,41 @@
+.searchbar {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.searchbar-icon {
+  position: absolute;
+
+  left: 14px;
+
+  font-size: 14px;
+
+  color: #666;
+}
+
+.searchbar-input {
+  width: 220px;
+  height: 36px;
+
+  border: 1px solid #999;
+  border-radius: 25px;
+
+  padding-left: 38px;
+  padding-right: 14px;
+
+  outline: none;
+
+  background: #efefef;
+
+  font-size: 14px;
+
+  transition: 0.2s ease;
+}
+
+.searchbar-input:focus {
+  border-color: #6c79d3;
+
+  background: white;
+}

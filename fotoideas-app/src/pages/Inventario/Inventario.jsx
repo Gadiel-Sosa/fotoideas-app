@@ -16,7 +16,9 @@ const Inventario = () => {
   const [accion, setAccion] = useState("agregar"); // Estado para alternar: agregar, actualizar, borrar
   const [productos, setProductos] = useState([]); // Estado para la tabla de consultar
   const [proveedoresList, setProveedoresList] = useState([]); // Lista para el dropdown de proveedores
-  
+  const [search, setSearch] = useState(""); //Estado para la barra de busqueda
+
+
   // Estado para capturar todos los datos del formulario
   const [formData, setFormData] = useState({
     id_producto: "",
@@ -75,7 +77,7 @@ const Inventario = () => {
       console.error("Error al cargar proveedores:", error);
     }
   };
-  
+
   // Ejecutar la carga de productos cada vez que el usuario cambie a la pestaña "consultar"
   useEffect(() => {
     if (tab === "consultar") {
@@ -172,9 +174,25 @@ const Inventario = () => {
     }
   };
 
+const filteredProducts = productos.filter((producto) => {
+
+  const textoBusqueda = search.toLowerCase();
+
+  return (
+    producto.nombre_producto?.toLowerCase().includes(textoBusqueda) ||
+    producto.codigo_barras_producto?.toLowerCase().includes(textoBusqueda) ||
+    producto.categoria?.toLowerCase().includes(textoBusqueda) ||
+    producto.estado?.toLowerCase().includes(textoBusqueda)
+  );
+});
+
   return (
     <>
-      <Header />
+      <Header
+        showSearch={tab === "consultar"}
+        searchValue={search}
+        onSearchChange={(e) => setSearch(e.target.value)}
+      />
 
       <PageContainer>
         <div className="inventario-container">
@@ -217,7 +235,7 @@ const Inventario = () => {
             <Section className="inventario-section">
               <div className="inventario-table-bold">
                 <InventoryTable
-                  productos={productos}
+                  productos={filteredProducts}
                   handleAccionDesdeTabla={handleAccionDesdeTabla}
                 />
               </div>

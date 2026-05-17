@@ -1,0 +1,46 @@
+.cash-table {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cash-table th,
+.cash-table td {
+  padding: 14px;
+  text-align: left;
+}
+
+.cash-table th {
+  background: #f3f4f6;
+  color: #111827;
+  font-weight: 700;
+}
+
+.cash-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cash-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* estados */
+
+.estado-cerrado {
+  background: #dcfce7;
+  color: #166534;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.estado-abierto {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}

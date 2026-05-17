@@ -17,10 +17,15 @@ const Reportes = () => {
 
   const [tab, setTab] = useState("ventas");
 
+  const [search, setSearch] = useState("");
+
   return (
 
     <>
-      <Header />
+      <Header
+        searchValue={search}
+        onSearchChange={(e) => setSearch(e.target.value)}
+      />
 
       <PageContainer>
 

@@ -1,11 +1,10 @@
 .sale-summary {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-}
-
-.buttons {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 1rem;
+}
+
+.sale-summary-buttons {
+  display: flex;
+  gap: 1rem;
 }

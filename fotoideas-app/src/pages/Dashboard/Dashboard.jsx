@@ -19,6 +19,8 @@ const Dashboard = () => {
     alertas: 0
   });
 
+  const [search, setSearch] = useState("");
+
   useEffect(() => {
 
     const fetchStats = async () => {
@@ -61,7 +63,10 @@ const Dashboard = () => {
 
   return (
     <>
-      <Header />
+      <Header
+        searchValue={search}
+        onSearchChange={(e) => setSearch(e.target.value)}
+      />
 
       <PageContainer>
 

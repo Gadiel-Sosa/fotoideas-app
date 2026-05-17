@@ -1,0 +1,62 @@
+.cancel-sale-overlay {
+  position: fixed;
+  inset: 0;
+
+  background-color: rgba(0, 0, 0, 0.6);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+}
+
+.cancel-sale-modal {
+  width: 500px;
+  max-width: 90%;
+
+  background-color: white;
+
+  border-radius: 12px;
+
+  padding: 24px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cancel-sale-header {
+  display: flex;
+  justify-content: space-between;
+
+  border-bottom: 2px solid #f3f4f6;
+
+  padding-bottom: 16px;
+}
+
+.cancel-sale-header h2 {
+  margin: 0;
+}
+
+.cancel-sale-header span {
+  color: #6b7280;
+}
+
+.cancel-sale-date {
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-end;
+}
+
+.cancel-sale-body {
+  text-align: center;
+}
+
+.cancel-sale-buttons {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 12px;
+}

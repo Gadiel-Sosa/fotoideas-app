@@ -49,6 +49,8 @@ const Proveedores = () => {
 
   const [formData, setFormData] = useState(initialProviderState);
 
+  const [search, setSearch] = useState("");
+
   // MANEJO INPUTS
 
   const handleChange = (e) => {
@@ -220,9 +222,25 @@ const Proveedores = () => {
     acciones[accion]();
   };
 
+  const filteredProviders = proveedoresList.filter((proveedor) => {
+
+  const textoBusqueda = search.toLowerCase();
+
+  return (
+    proveedor.nombre_proveedor?.toLowerCase().includes(textoBusqueda) ||
+    proveedor.nombre_empresa?.toLowerCase().includes(textoBusqueda) ||
+    proveedor.correo_proveedor?.toLowerCase().includes(textoBusqueda) ||
+    proveedor.telefono_proveedor?.toLowerCase().includes(textoBusqueda)
+  );
+});
+
   return (
     <>
-      <Header />
+      <Header
+        showSearch={tab === "consultar"}
+        searchValue={search}
+        onSearchChange={(e) => setSearch(e.target.value)}
+      />
 
       <PageContainer>
 
@@ -293,7 +311,7 @@ const Proveedores = () => {
             <Section className="proveedores-section">
 
               <ProviderTable
-                proveedores={proveedoresList}
+                proveedores={filteredProviders}
                 handleAccionDesdeTabla={handleAccionDesdeTabla}
               />
 
