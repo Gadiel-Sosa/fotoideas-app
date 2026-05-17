@@ -94,7 +94,7 @@ CREATE TABLE Abastecimiento (
     id_compra SERIAL PRIMARY KEY,
     id_proveedor INTEGER NOT NULL,
     fecha_abastecimiento DATE NOT NULL,
-    hora_abastecimeinto TIME NOT NULL,
+    hora_abastecimiento TIME NOT NULL,
     FOREIGN KEY (id_proveedor) REFERENCES Proveedor(id_proveedor)
 );
 
@@ -133,7 +133,7 @@ CREATE TABLE Movimiento_producto (
     id_sucursal INTEGER NOT NULL,
     id_tipo_movimiento INTEGER NOT NULL, 
     cantidad INTEGER NOT NULL,
-    fecha_movimeinto DATE NOT NULL,
+    fecha_movimiento DATE NOT NULL,
     observacion TEXT,
     FOREIGN KEY (id_producto) REFERENCES Producto(id_producto),
     FOREIGN KEY (id_rol) REFERENCES Rol_user(id_rol),

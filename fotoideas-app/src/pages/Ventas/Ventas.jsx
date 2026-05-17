@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import "../Ventas/Ventas.css";
 
@@ -28,6 +28,17 @@ const Ventas = () => {
   const [paymentMethod, setPaymentMethod] = useState("Efectivo");
   const [search, setSearch] = useState("");
 
+  // Obtener datos del usuario logueado
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    const userLocal = JSON.parse(localStorage.getItem("user"));
+    if (userLocal) {
+      setUsuario(userLocal);
+    }
+  }, []);
+
+  const isAdmin = usuario && (usuario.nombre_rol === "Admin" || usuario.nombre_rol === "Administrador");
 
   // AGREGAR PRODUCTO POR CÓDIGO DE BARRAS
   const handleAddProduct = async (codigo) => {
@@ -132,6 +143,7 @@ const Ventas = () => {
           saleNumber={ventas.length + 1}
           date={new Date().toLocaleDateString()}
           time={new Date().toLocaleTimeString()}
+          cashier={usuario ? usuario.nombre_empleado : "Sin asignar"}
         />
 
         <br />
@@ -158,12 +170,14 @@ const Ventas = () => {
             Corte de Caja
           </Button>
 
-          <Button
-            variant={tab === "Consultarcorte" ? "primary" : "secondary"}
-            onClick={() => setTab("Consultarcorte")}
-          >
-            Corte de Caja
-          </Button>
+          {isAdmin && (
+            <Button
+              variant={tab === "Consultarcorte" ? "primary" : "secondary"}
+              onClick={() => setTab("Consultarcorte")}
+            >
+              Consultar Corte de Caja
+            </Button>
+          )}
 
         </div>
 
@@ -184,7 +198,7 @@ const Ventas = () => {
 
                 <div className="right-panel">
                   <PaymentPanel
-                    cashier="Admin"
+                    cashier={usuario ? usuario.nombre_empleado : "Sin asignar"}
                     paymentMethod={paymentMethod}
                     setPaymentMethod={setPaymentMethod}
                   />
@@ -192,7 +206,7 @@ const Ventas = () => {
                   <SaleSummary
                     productos={productos}
                     setProductos={setProductos}
-                    rol="Admin"
+                    rol={usuario ? usuario.nombre_rol : "Empleado"}
                     onCobrar={handleGenerarTicket}
                   />
                 </div>
@@ -213,14 +227,14 @@ const Ventas = () => {
           </Section>
         )}
 
-        {tab === "consultarcorte" && (
+        {tab === "Consultarcorte" && isAdmin && (
           <Section>
             <ConsultarCorteCaja />
           </Section>
         )}
       </PageContainer>
     </>
-  )
-}
+  );
+};
 
-export default Ventas
+export default Ventas;

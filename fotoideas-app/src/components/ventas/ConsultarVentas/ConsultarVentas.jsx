@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./ConsultarVentas.css"
 import EmptyState from "../../ui/EmptyState/EmptyState";
 import TableContainer from "../../ui/TableContainer/TableContainer";
-import { obtenerVentas, cancelarVentaRealizada } from "../../../services/ventaService";
+import { cancelarVentaRealizada } from "../../../services/ventaService";
 
 const ConsultarVentas = () => {
   const [ventas, setVentas] = useState([]);
@@ -16,8 +16,15 @@ const ConsultarVentas = () => {
 
   const cargarVentas = async () => {
     try {
-      const data = await obtenerVentas();
-      setVentas(data);
+      const usuarioLocal = JSON.parse(localStorage.getItem("user"));
+      const idEmpleado = usuarioLocal ? usuarioLocal.id_empleado : 1;
+      const rol = usuarioLocal ? usuarioLocal.nombre_rol : "Empleado";
+
+      const response = await fetch(`http://localhost:3000/api/ventas?id_empleado=${idEmpleado}&rol=${rol}`);
+      const data = await response.json();
+      if (data.success) {
+        setVentas(data.ventas);
+      }
     } catch (error) {
       console.error("Error al cargar ventas:", error);
     }

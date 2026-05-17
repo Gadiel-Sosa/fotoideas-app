@@ -51,6 +51,18 @@ const Proveedores = () => {
 
   const [search, setSearch] = useState("");
 
+  // Obtener datos del usuario logueado y verificar si es Admin
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    const userLocal = JSON.parse(localStorage.getItem("user"));
+    if (userLocal) {
+      setUsuario(userLocal);
+    }
+  }, []);
+
+  const isAdmin = usuario && (usuario.nombre_rol === "Admin" || usuario.nombre_rol === "Administrador");
+
   // MANEJO INPUTS
 
   const handleChange = (e) => {
@@ -237,12 +249,20 @@ const Proveedores = () => {
   return (
     <>
       <Header
-        showSearch={tab === "consultar"}
+        showSearch={isAdmin && tab === "consultar"}
         searchValue={search}
         onSearchChange={(e) => setSearch(e.target.value)}
       />
 
       <PageContainer>
+
+        {usuario && !isAdmin ? (
+          <Section>
+            <h2 style={{ color: "#ef4444", textAlign: "center", marginTop: "50px" }}>
+              Acceso Denegado: No tienes permisos para ver el módulo de proveedores.
+            </h2>
+          </Section>
+        ) : (
 
         <div className="proveedores-container">
 
@@ -319,6 +339,8 @@ const Proveedores = () => {
           )}
 
         </div>
+
+        )}
 
       </PageContainer>
     </>

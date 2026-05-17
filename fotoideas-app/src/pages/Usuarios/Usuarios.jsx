@@ -37,6 +37,17 @@ const Usuarios = () => {
   const [formData, setFormData] = useState(initialUserState);
   const [search, setSearch] = useState("");
 
+  // Obtener datos del usuario logueado y verificar si es Admin
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    const userLocal = JSON.parse(localStorage.getItem("user"));
+    if (userLocal) {
+      setUsuario(userLocal);
+    }
+  }, []);
+
+  const isAdmin = usuario && (usuario.nombre_rol === "Admin" || usuario.nombre_rol === "Administrador");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -139,26 +150,37 @@ const Usuarios = () => {
 
   const filteredUsers = usuariosList.filter((usuario) => {
 
-  const texto = search.toLowerCase();
+    // Si la barra de búsqueda está vacía, mostramos a todos
+    if (!search) return true; 
 
-  return (
-    usuario.nombre_empleado?.toLowerCase().includes(texto) ||
-    usuario.username?.toLowerCase().includes(texto) ||
-    usuario.telefono_empleado?.includes(texto) ||
-    usuario.rfc_empleado?.toLowerCase().includes(texto)
-  );
+    const texto = search.toLowerCase();
 
-});
+    return (
+      usuario.nombre_empleado?.toLowerCase().includes(texto) ||
+      usuario.username?.toLowerCase().includes(texto) ||
+      // Lo convertimos a string por seguridad en caso de que venga vacío o como número
+      String(usuario.telefono_empleado || "").toLowerCase().includes(texto) ||
+      usuario.rfc_empleado?.toLowerCase().includes(texto)
+    );
+  });
 
   return (
     <>
       <Header
-        showSearch={tab === "consultar"}
+        showSearch={isAdmin && tab === "consultar"}
         searchValue={search}
         onSearchChange={(e) => setSearch(e.target.value)}
       />
 
       <PageContainer>
+
+        {usuario && !isAdmin ? (
+          <Section>
+            <h2 style={{ color: "#ef4444", textAlign: "center", marginTop: "50px" }}>
+              Acceso Denegado: No tienes permisos para ver el módulo de usuarios.
+            </h2>
+          </Section>
+        ) : (
 
         <div className="usuarios-container">
 
@@ -218,26 +240,25 @@ const Usuarios = () => {
                   />
                 )}
               </div>
-
             </Section>
           )}
 
           {tab === "consultar" && (
-            <Section className="usuarios-section">
-
+            <Section>
               <UserTable
                 usuarios={filteredUsers}
+                usuariosList={filteredUsers}
                 handleAccionDesdeTabla={handleAccionDesdeTabla}
               />
-
             </Section>
           )}
 
         </div>
-
+        
+        )}
       </PageContainer>
     </>
   );
 };
 
-export default Usuarios
+export default Usuarios;

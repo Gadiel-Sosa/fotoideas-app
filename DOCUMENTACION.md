@@ -70,10 +70,10 @@ Se eligió **Docker** para desplegar la base de datos **PostgreSQL**. Esta decis
 5.  **Cobro:** Al hacer clic en "Cobrar", se abre el `CobrarModal` para recibir el pago, registrar el cambio y confirmar la operación en el sistema.
 
 ### 6.3 Flujo de Corte de Caja
-1.  Se cargan los datos llamando al GET `/api/corte/datos` donde la base de datos suma lo vendido en el turno actual para ese usuario.
-2.  El Frontend presenta un formulario (`CorteCaja`) donde el empleado captura cuánto dinero físico tiene (efectivo real), y observaciones.
-3.  Al guardar, se dispara el POST `/api/corte/realizar`, donde el servidor verifica el monto inicial, suma las ventas y realiza la comparativa aritmética (`efectivo_real` vs `efectivoEsperado`).
-4.  La diferencia se guarda en la tabla `Corte_caja` para fines contables.
+1.  **Apertura Automática:** Al solicitar `/api/corte/datos`, el sistema verifica si el empleado tiene un turno activo. Si no lo tiene, crea automáticamente uno nuevo en ceros para iniciar el turno.
+2.  **Suma de Ventas:** La base de datos agrupa y suma las ventas vinculadas específicamente al `id_corte_caja` del turno activo en ese momento, separando los flujos monetarios.
+3.  **Cierre:** El Frontend presenta un formulario (`CorteCaja`) donde el empleado captura cuánto dinero físico tiene (efectivo real).
+4.  **Conclusión:** Al guardar (`POST /api/corte/realizar`), el servidor actualiza el registro con el `efectivo_real` y la `diferencia_caja`. Al registrarse el efectivo, el turno queda oficialmente cerrado.
 
 ### 6.4 Flujo de Cancelación de Venta
 1.  El usuario (con los permisos de administrador adecuados) selecciona una venta previamente completada desde un historial.
@@ -99,7 +99,7 @@ Se eligió **Docker** para desplegar la base de datos **PostgreSQL**. Esta decis
 | **PUT** | `/api/proveedores/:id` | Actualiza la información de contacto y empresa de un proveedor. |
 | **DELETE** | `/api/proveedores/:id` | Elimina un proveedor físicamente (solo si no existen operaciones vinculadas en otras tablas). |
 | **GET** | `/api/dashboard/stats` | Reúne métricas globales para las tarjetas del Dashboard (Ventas, Inventario, Proveedores y Alertas). |
-| **GET** | `/api/corte/datos` | Busca el último corte de caja "activo" de un empleado y suma sus transacciones del día desde la tabla `Venta`. Retorna los valores base para el corte. |
+| **GET** | `/api/corte/datos` | Busca el último corte de caja "activo". Si no existe, genera la apertura de un nuevo turno automáticamente. Suma las transacciones específicas de dicho turno. |
 | **POST** | `/api/corte/realizar` | Recibe la contabilidad física, actualiza la tabla `Corte_caja` calculando variaciones (`diferencia_caja`) y marca la hora de cierre final. |
 | **DELETE**| `/api/ventas/:id` | Permite cancelar una venta ya completada mediante borrado lógico, registrándola en la tabla `Cancelar_venta` sin eliminar físicamente el historial. |
 
@@ -140,7 +140,7 @@ Para completar la funcionalidad integral del sistema POS, están pendientes de d
 
 *   **Página de Inventario:** **(Completado)** Desarrollo de la interfaz gráfica (CRUD) para visualizar, agregar, actualizar y eliminar de forma lógica los productos.
 *   **Página de Proveedores:** **(Completado)** Integración de la vista completa (CRUD) con su respectiva tabla y formularios modulares conectados al backend.
-*   **Página de Usuarios (Empleados):** Implementación de una vista administrativa exclusiva para perfiles autorizados que permita dar de alta nuevos empleados, gestionar sus credenciales y desactivar accesos.
+*   **Página de Usuarios (Empleados):** **(Completado)** Implementación de una vista administrativa protegida por roles exclusivos para perfiles autorizados, que permite dar de alta nuevos empleados y gestionar sus credenciales.
 *   **Página de Reportes:** Módulo analítico donde se podrán consultar historiales detallados de ventas por rangos de fechas, revisar la auditoría de los cortes de caja y visualizar de manera profunda las métricas clave mostradas en el Dashboard.
 *   **Integración de Pistola Escáner:** **(Completado)** Creación del componente `ScannerInput.jsx` que intercepta los disparos del lector de código de barras físico sin depender de clics ni botones.
     ~~**Agregar otra tabla para las bajas (cancelar venta)**~~ **(Completado)**

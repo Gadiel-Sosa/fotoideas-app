@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import "./Reportes.css";
 
@@ -19,15 +19,36 @@ const Reportes = () => {
 
   const [search, setSearch] = useState("");
 
+  // Obtener datos del usuario logueado y verificar si es Admin
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    const userLocal = JSON.parse(localStorage.getItem("user"));
+    if (userLocal) {
+      setUsuario(userLocal);
+    }
+  }, []);
+
+  const isAdmin = usuario && (usuario.nombre_rol === "Admin" || usuario.nombre_rol === "Administrador");
+
   return (
 
     <>
       <Header
+        showSearch={isAdmin}
         searchValue={search}
         onSearchChange={(e) => setSearch(e.target.value)}
       />
 
       <PageContainer>
+
+        {usuario && !isAdmin ? (
+          <Section>
+            <h2 style={{ color: "#ef4444", textAlign: "center", marginTop: "50px" }}>
+              Acceso Denegado: No tienes permisos para ver el módulo de reportes.
+            </h2>
+          </Section>
+        ) : (
 
         <div className="reportes-container">
 
@@ -63,6 +84,8 @@ const Reportes = () => {
           </Section>
 
         </div>
+
+        )}
 
       </PageContainer>
 

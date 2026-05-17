@@ -58,28 +58,46 @@ const SaleSummary = ({
 
     setShowCancelModal(false);
 
-    setShowPinModal(true);
+    if (rol === "Admin" || rol === "Administrador") {
+      cancelarVentaDirecta();
+    } else {
+      setShowPinModal(true);
+    }
   };
 
-  const handleCancelarVenta = () => {
+  const cancelarVentaDirecta = () => {
+    setProductos([]);
+    setAdminPassword("");
+    setShowPinModal(false);
+    alert("Venta cancelada correctamente");
+  };
 
-    // Aquí luego puedes validar backend
-    // contra contraseña admin real
+  const handleCancelarVenta = async () => {
 
     if (!adminPassword.trim()) {
 
-      alert("Ingrese la contraseña");
+      alert("Ingrese el PIN de seguridad");
 
       return;
     }
 
-    setProductos([]);
-
-    setAdminPassword("");
-
-    setShowPinModal(false);
-
-    alert("Venta cancelada correctamente");
+    try {
+      const response = await fetch("http://localhost:3000/api/verify-admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin: adminPassword })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        cancelarVentaDirecta();
+      } else {
+        alert("PIN incorrecto o no tiene permisos de administrador.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error al verificar el PIN.");
+    }
   };
 
   const handleConfirmarCobro = async (
@@ -181,7 +199,6 @@ const SaleSummary = ({
 
         <Button
           variant="danger"
-          disabled={rol !== "Admin"}
           onClick={() =>
             setShowCancelModal(true)
           }

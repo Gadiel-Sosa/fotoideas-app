@@ -20,17 +20,18 @@ const PinModal = ({
       <div className="password-modal">
 
         <h2>
-          Ingrese la contraseña para continuar
+          Ingrese el PIN de seguridad
         </h2>
 
         <div className="password-modal-content">
 
           <Input
-            label="Contraseña cajero administrador"
+            label="PIN del administrador (4 dígitos)"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="********"
+            placeholder="****"
+            maxLength={4}
           />
 
         </div>

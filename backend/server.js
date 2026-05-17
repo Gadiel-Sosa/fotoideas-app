@@ -24,9 +24,11 @@ app.post('/api/login', async (req, res) => {
   try {
     // 1. Verificamos si el usuario y contraseña existen
     const result = await pool.query(
-      `SELECT c.id_credencial, c.id_empleado, e.nombre_empleado 
+      `SELECT c.id_credencial, c.id_empleado, e.nombre_empleado, r.id_rol, r.nombre_rol 
        FROM Credencial c 
        JOIN Empleado e ON c.id_empleado = e.id_empleado 
+       LEFT JOIN Empleado_Rol er ON e.id_empleado = er.id_empleado
+       LEFT JOIN Rol_user r ON er.id_rol = r.id_rol
        WHERE c.username = $1 AND c.contraseña_usuario = $2 AND c.estado_credencial = TRUE`,
       [username, password]
     );
@@ -46,6 +48,29 @@ app.post('/api/login', async (req, res) => {
       res.json({ success: true, user });
     } else {
       res.status(401).json({ success: false, error: 'Credenciales incorrectas' });
+    }
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ success: false, error: 'Error del servidor' });
+  }
+});
+
+// Endpoint para verificar credenciales de administrador (Para PIN de seguridad)
+app.post('/api/verify-admin', async (req, res) => {
+  const { pin } = req.body;
+
+  try {
+    const result = await pool.query(
+      `SELECT id_rol 
+       FROM Admin 
+       WHERE pin_seguridad = $1`,
+      [pin]
+    );
+
+    if (result.rows.length > 0) {
+      res.json({ success: true });
+    } else {
+      res.status(401).json({ success: false, error: 'PIN incorrecto o permisos insuficientes' });
     }
   } catch (err) {
     console.error(err.message);
@@ -302,27 +327,37 @@ app.get('/api/corte/datos', async (req, res) => {
        WHERE id_empleado = $1`, [id_empleado]
     );
 
-    // Obtener el corte de caja activo (el último que no ha sido cerrado)
-    const corteResult = await pool.query(
+    // Obtener el corte de caja activo (que NO tenga efectivo_real, es decir, no esté cerrado)
+    let corteResult = await pool.query(
       `SELECT id_corte_caja, monto_inicial, fecha_corte
        FROM Corte_caja 
-       WHERE id_empleado = $1 
+       WHERE id_empleado = $1 AND efectivo_real IS NULL
        ORDER BY id_corte_caja DESC 
        LIMIT 1`,
       [empleadoResult.rows[0]?.id_empleado || 1]
     );
 
-    // Obtener ventas del turno (ventas del día actual)
+    let corteActivo = corteResult.rows[0];
+
+    // Si no hay un turno abierto, lo creamos automáticamente en ceros
+    if (!corteActivo) {
+      const nuevoCorte = await pool.query(
+        `INSERT INTO Corte_caja (id_empleado, fecha_corte, hora_corte, monto_inicial)
+         VALUES ($1, CURRENT_DATE, CURRENT_TIME, 0) RETURNING id_corte_caja, monto_inicial, fecha_corte`,
+        [empleadoResult.rows[0]?.id_empleado || 1]
+      );
+      corteActivo = nuevoCorte.rows[0];
+    }
+
+    // Obtener ventas asociadas únicamente a este turno/corte específico
     const ventasResult = await pool.query(
       `SELECT COALESCE(SUM(total_venta), 0) as total_ventas
        FROM Venta 
-       WHERE id_empleado = $1 
-       AND fecha_venta = CURRENT_DATE`,
-      [empleadoResult.rows[0]?.id_empleado || 1]
+       WHERE id_corte_caja = $1`,
+      [corteActivo.id_corte_caja]
     );
 
     const empleado = empleadoResult.rows[0];
-    const corteActivo = corteResult.rows[0];
     const ventasTotales = parseFloat(ventasResult.rows[0].total_ventas);
     const montoInicial = corteActivo ? parseFloat(corteActivo.monto_inicial) : 0;
     const efectivoEsperado = montoInicial + ventasTotales;
@@ -358,13 +393,12 @@ app.post('/api/corte/realizar', async (req, res) => {
   try {
     const idEmp = id_empleado || 1;
 
-    // Obtener ventas del turno y monto inicial
+    // Obtener ventas asociadas únicamente a este corte específico
     const ventasResult = await pool.query(
       `SELECT COALESCE(SUM(total_venta), 0) as total_ventas
        FROM Venta 
-       WHERE id_empleado = $1 
-       AND fecha_venta = CURRENT_DATE`,
-      [idEmp]
+       WHERE id_corte_caja = $1`,
+      [id_corte]
     );
 
     const ventasTotales = parseFloat(ventasResult.rows[0].total_ventas);
@@ -424,10 +458,30 @@ app.post('/api/corte/realizar', async (req, res) => {
   }
 });
 
-// Obtener historial de ventas (Para consultar)
-app.get('/api/ventas', async (req, res) => {
+// Obtener historial de cortes de caja (Para consultar)
+app.get('/api/cortes', async (req, res) => {
   try {
     const result = await pool.query(
+      `SELECT c.id_corte_caja, c.fecha_corte, c.hora_corte, c.monto_inicial, 
+              c.efectivo_esperado, c.efectivo_real, c.diferencia_caja, 
+              c.pago_proveedores, c.observaciones_corte, e.nombre_empleado as cajero
+       FROM Corte_caja c
+       JOIN Empleado e ON c.id_empleado = e.id_empleado
+       WHERE c.efectivo_real IS NOT NULL
+       ORDER BY c.id_corte_caja DESC`
+    );
+    res.json({ success: true, cortes: result.rows });
+  } catch (error) {
+    console.error("Error al obtener cortes de caja:", error);
+    res.status(500).json({ success: false, error: "Error al obtener historial de cortes" });
+  }
+});
+
+// Obtener historial de ventas (Para consultar)
+app.get('/api/ventas', async (req, res) => {
+  const { id_empleado, rol } = req.query;
+  try {
+    let query = 
       `SELECT v.id_venta, v.fecha_venta, v.hora_venta, v.total_venta, v.forma_pago, e.nombre_empleado,
               CASE WHEN cv.id_venta IS NOT NULL THEN 'Eliminada' ELSE 'Completada' END as estado_venta,
               (v.total_venta / 1.16) as subtotal_venta,
@@ -440,9 +494,17 @@ app.get('/api/ventas', async (req, res) => {
               ) as lista_productos
        FROM Venta v
        JOIN Empleado e ON v.id_empleado = e.id_empleado
-       LEFT JOIN Cancelar_venta cv ON v.id_venta = cv.id_venta
-       ORDER BY v.id_venta DESC`
-    );
+       LEFT JOIN Cancelar_venta cv ON v.id_venta = cv.id_venta`;
+
+    let params = [];
+    if (rol && rol !== 'Admin' && rol !== 'Administrador') {
+      query += ` WHERE v.id_empleado = $1 AND v.fecha_venta = CURRENT_DATE`;
+      params.push(id_empleado || 1);
+    }
+
+    query += ` ORDER BY v.id_venta DESC`;
+
+    const result = await pool.query(query, params);
     res.json({ success: true, ventas: result.rows });
   } catch (error) {
     console.error("Error al obtener ventas:", error);

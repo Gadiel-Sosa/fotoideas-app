@@ -3,7 +3,7 @@ import "./CorteCaja.css";
 import Button from "../../ui/Button/Button";
 import Input from "../../ui/Input/Input";
 import Section from "../../ui/Section/Section";
-import { obtenerDatosCorte, realizarCorte } from "../../../services/corteService";
+import { realizarCorte } from "../../../services/corteService";
 
 const CorteCaja = () => {
   const [loading, setLoading] = useState(true);
@@ -32,15 +32,19 @@ const CorteCaja = () => {
       const usuarioLocal = JSON.parse(localStorage.getItem("user"));
       const idEmpleado = usuarioLocal ? usuarioLocal.id_empleado : 1;
 
-      const datos = await obtenerDatosCorte(idEmpleado);
-      setCorte({
-        ...corte,
-        id_corte: datos.id_corte,
-        cajero: datos.cajero,
-        ventasTotales: datos.ventasTotales,
-        montoInicial: datos.montoInicial === 0 ? "" : datos.montoInicial,
-        efectivoEsperado: datos.efectivoEsperado
-      });
+      const response = await fetch(`http://localhost:3000/api/corte/datos?id_empleado=${idEmpleado}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setCorte({
+          ...corte,
+          id_corte: data.datos.id_corte,
+          cajero: data.datos.cajero,
+          ventasTotales: data.datos.ventasTotales,
+          montoInicial: data.datos.montoInicial === 0 ? "" : data.datos.montoInicial,
+          efectivoEsperado: data.datos.efectivoEsperado
+        });
+      }
     } catch (error) {
       console.error("Error al cargar datos:", error);
       alert("Error al cargar los datos del corte");

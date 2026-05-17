@@ -11,27 +11,19 @@ const ConsultarCorteCaja = () => {
 
   useEffect(() => {
 
-    // temporal mientras conectas backend
-    setCortes([
-      {
-        id_corte: 1,
-        fecha_corte: "2026-05-17",
-        hora_corte: "18:45",
-        cajero: "Admin",
-        ventas_totales: 15,
-        total_ventas: 4500.50,
-        estado: "Cerrado"
-      },
-      {
-        id_corte: 2,
-        fecha_corte: "2026-05-18",
-        hora_corte: "20:10",
-        cajero: "Carlos",
-        ventas_totales: 10,
-        total_ventas: 2800,
-        estado: "Abierto"
+    const fetchCortes = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/cortes");
+        const data = await response.json();
+        if (data.success) {
+          setCortes(data.cortes);
+        }
+      } catch (error) {
+        console.error("Error al obtener los cortes de caja:", error);
       }
-    ]);
+    };
+
+    fetchCortes();
 
   }, []);
 
@@ -53,9 +45,9 @@ const ConsultarCorteCaja = () => {
             <th>Fecha</th>
             <th>Hora</th>
             <th>Cajero</th>
-            <th>Ventas realizadas</th>
-            <th>Total vendido</th>
-            <th>Estado</th>
+            <th>Monto inicial</th>
+            <th>Efectivo real</th>
+            <th>Diferencia</th>
 
           </tr>
 
@@ -65,34 +57,28 @@ const ConsultarCorteCaja = () => {
 
           {cortes.map((corte) => (
 
-            <tr key={corte.id_corte}>
+            <tr key={corte.id_corte_caja}>
 
-              <td>{corte.id_corte}</td>
+              <td>{corte.id_corte_caja}</td>
 
-              <td>{corte.fecha_corte}</td>
+              <td>{new Date(corte.fecha_corte).toLocaleDateString()}</td>
 
-              <td>{corte.hora_corte}</td>
+              <td>{corte.hora_corte ? corte.hora_corte.substring(0, 5) : "--:--"}</td>
 
               <td>{corte.cajero}</td>
 
-              <td>{corte.ventas_totales}</td>
-
               <td>
-                ${Number(corte.total_ventas).toFixed(2)}
+                ${Number(corte.monto_inicial).toFixed(2)}
               </td>
 
               <td>
+                ${Number(corte.efectivo_real).toFixed(2)}
+              </td>
 
-                <span
-                  className={
-                    corte.estado === "Cerrado"
-                      ? "estado-cerrado"
-                      : "estado-abierto"
-                  }
-                >
-                  {corte.estado}
+              <td>
+                <span style={{ color: Number(corte.diferencia_caja) < 0 ? '#ef4444' : '#10b981', fontWeight: 'bold' }}>
+                  ${Number(corte.diferencia_caja).toFixed(2)}
                 </span>
-
               </td>
 
             </tr>

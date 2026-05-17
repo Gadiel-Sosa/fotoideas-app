@@ -18,6 +18,9 @@ const Inventario = () => {
   const [proveedoresList, setProveedoresList] = useState([]); // Lista para el dropdown de proveedores
   const [search, setSearch] = useState(""); //Estado para la barra de busqueda
 
+  // Obtener datos del usuario
+  const [usuario, setUsuario] = useState(null);
+  const isAdmin = usuario && (usuario.nombre_rol === "Admin" || usuario.nombre_rol === "Administrador");
 
   // Estado para capturar todos los datos del formulario
   const [formData, setFormData] = useState({
@@ -88,10 +91,25 @@ const Inventario = () => {
   // Cargar lista de proveedores una sola vez al montar el componente (para el dropdown del formulario)
   useEffect(() => {
     cargarProveedores();
+
+    // Verificar rol del usuario
+    const userLocal = JSON.parse(localStorage.getItem("user"));
+    if (userLocal) {
+      setUsuario(userLocal);
+      // Si no es admin, forzarlo a la pestaña de consultar (solo lectura)
+      if (userLocal.nombre_rol !== "Admin" && userLocal.nombre_rol !== "Administrador") {
+        setTab("consultar");
+      }
+    }
   }, []);
 
   // Función que se activa al darle click a "Editar" o "Eliminar" en la tabla
   const handleAccionDesdeTabla = (producto, nuevaAccion) => {
+    if (!isAdmin) {
+      alert("Acceso denegado: Solo los administradores pueden modificar el inventario.");
+      return;
+    }
+
     setAccion(nuevaAccion);
     setTab("gestionar"); // Nos cambia a la pestaña de formulario
     setFormData({
@@ -201,12 +219,14 @@ const filteredProducts = productos.filter((producto) => {
 
           <div className="tabs inventario-top">
 
-            <Button
-              variant={tab === "gestionar" ? "primary" : "secondary"}
-              onClick={() => setTab("gestionar")}
-            >
-              Gestionar Productos
-            </Button>
+            {isAdmin && (
+              <Button
+                variant={tab === "gestionar" ? "primary" : "secondary"}
+                onClick={() => setTab("gestionar")}
+              >
+                Gestionar Productos
+              </Button>
+            )}
 
             <Button
               variant={tab === "consultar" ? "primary" : "secondary"}
@@ -232,13 +252,11 @@ const filteredProducts = productos.filter((producto) => {
           )}
 
           {tab === "consultar" && (
-            <Section className="inventario-section">
-              <div className="inventario-table-bold">
-                <InventoryTable
-                  productos={filteredProducts}
-                  handleAccionDesdeTabla={handleAccionDesdeTabla}
-                />
-              </div>
+            <Section>
+              <InventoryTable
+                productos={filteredProducts}
+                handleAccionDesdeTabla={handleAccionDesdeTabla}
+              />
             </Section>
           )}
 
@@ -248,4 +266,4 @@ const filteredProducts = productos.filter((producto) => {
   );
 };
 
-export default Inventario
+export default Inventario;
