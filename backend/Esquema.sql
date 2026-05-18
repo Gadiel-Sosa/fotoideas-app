@@ -185,3 +185,4 @@ CREATE TABLE Empleado_Rol (
     FOREIGN KEY (id_rol) REFERENCES Rol_user(id_rol),
     FOREIGN KEY (id_empleado) REFERENCES Empleado(id_empleado)
 );
+

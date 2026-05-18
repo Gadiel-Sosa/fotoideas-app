@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { FaHome,
   FaCashRegister,
   FaBox,
@@ -13,15 +14,32 @@ import "./sidebar.css";
 
 const Sidebar = () => {
 
+  const [usuario, setUsuario] = useState(null);
   const location = useLocation();
+
+  useEffect(() => {
+    // Recuperamos los datos del usuario logueado de la persistencia local
+    const userLocal = JSON.parse(localStorage.getItem("user"));
+    if (userLocal) {
+      setUsuario(userLocal);
+    }
+  }, []);
+
+  // Lógica de detección de rol consistente con el resto del proyecto
+  const isAdmin = usuario && (usuario.nombre_rol === "Admin" || usuario.nombre_rol === "Administrador");
+
+  const handleLogout = () => {
+    localStorage.removeItem("auth");
+    localStorage.removeItem("user");
+  };
 
   const menu = [
   { name: "Tablero", path: "/dashboard", icon: <FaHome /> },
   { name: "Ventas", path: "/ventas", icon: <FaCashRegister /> },
   { name: "Inventario", path: "/inventario", icon: <FaBox /> },
-  { name: "Proveedores", path: "/proveedores", icon: <FaTruck /> },
-  { name: "Usuarios", path: "/usuarios", icon: <FaUsers /> },
-  { name: "Reportes", path: "/reportes", icon: <FaChartBar /> }
+  { name: "Proveedores", path: "/proveedores", icon: <FaTruck />, adminOnly: true },
+  { name: "Usuarios", path: "/usuarios", icon: <FaUsers />, adminOnly: true },
+  { name: "Reportes", path: "/reportes", icon: <FaChartBar />, adminOnly: true }
   ];
 
   return (
@@ -31,11 +49,20 @@ const Sidebar = () => {
 
         <div className="user-box">
           <FaUserCircle />
-          <span>Usuario X</span>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ fontWeight: "bold", fontSize: "0.9rem" }}>
+              {usuario ? usuario.nombre_empleado : "Invitado"}
+            </span>
+            <span style={{ fontSize: "0.75rem", opacity: 0.8 }}>
+              {isAdmin ? "Admin" : "Empleado"}
+            </span>
+          </div>
         </div>
         <nav className="sidebar-menu">
 
-          {menu.map((item) => (
+          {menu
+            .filter((item) => !item.adminOnly || isAdmin)
+            .map((item) => (
 
             <Link
               key={item.path}
@@ -56,10 +83,9 @@ const Sidebar = () => {
 
       </div>
 
-
       <div className="sidebar-bottom">
 
-        <Link to="/" className="menu-item logout">
+        <Link to="/" className="menu-item logout" onClick={handleLogout}>
           <FaSignOutAlt />
           <span>Cerrar sesión</span>
         </Link>

@@ -1,52 +1,49 @@
-import "./UserTable.css";
 import TableContainer from "../../ui/TableContainer/TableContainer";
-import Button from "../../ui/Button/Button";
 import EmptyState from "../../ui/EmptyState/EmptyState";
+import "./UserTable.css";
 
 const UserTable = ({ usuarios, handleAccionDesdeTabla }) => {
-  
   if (!usuarios || usuarios.length === 0) {
-    return <EmptyState message="No hay usuarios registrados" />;
+    return <EmptyState message="No hay usuarios registrados en el sistema" />;
   }
 
   return (
     <TableContainer>
-      <table className="user-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre del Empleado</th>
-            <th>Usuario</th>
-            <th>Rol</th>
-            <th>Estado</th>
-            <th className="text-center">Acciones</th>
-          </tr>
-        </thead>
-        
-        <tbody>
-          {usuarios.map((u) => (
-            <tr key={u.id_empleado}>
-              <td className="text-gray">{u.id_empleado}</td>
-              <td className="text-dark">{u.nombre_empleado}</td>
-              <td className="text-gray-dark">{u.username || "Sin credencial"}</td>
-              <td className="text-gray-dark">{u.nombre_rol || "Sin rol"}</td>
-              <td>
-                <span className={`status-badge ${u.estado_credencial ? 'status-active' : 'status-inactive'}`}>
-                  {u.estado_credencial ? "Activo" : "Inactivo"}
-                </span>
-              </td>
-              <td className="action-buttons">
-                <Button variant="secondary" onClick={() => handleAccionDesdeTabla(u, "actualizar")}>
-                  Editar
-                </Button>
-                <Button variant="danger" onClick={() => handleAccionDesdeTabla(u, "borrar")}>
-                  Baja
-                </Button>
-              </td>
+      <div className="inventory-table">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Teléfono</th>
+              <th>Estado</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {usuarios.map((user) => (
+              <tr key={user.id_empleado}>
+                <td>{user.id_empleado}</td>
+                <td><strong>{user.nombre_empleado}</strong></td>
+                <td>{user.username}</td>
+                <td>{user.nombre_rol || "Sin asignar"}</td>
+                <td>{user.telefono_empleado || "N/A"}</td>
+                <td>
+                  <span className={`status-badge ${user.estado_credencial ? 'status-active' : 'status-inactive'}`}>
+                    {user.estado_credencial ? 'Activo' : 'Inactivo'}
+                  </span>
+                </td>
+                <td className="action-buttons">
+                  <button onClick={() => handleAccionDesdeTabla(user, "actualizar")}>Editar</button>
+                  <button onClick={() => handleAccionDesdeTabla(user, "borrar")}>Eliminar</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </TableContainer>
   );
 };

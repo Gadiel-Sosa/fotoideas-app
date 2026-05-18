@@ -29,7 +29,7 @@ const ProviderUpdateForm = ({
         </div>
 
         <Input
-          label="Razón social"
+          label="Empresa / Razón social"
           name="Nombre de la empresa..."
           value={formData.nombre_empresa}
           onChange={handleChange}
@@ -45,8 +45,8 @@ const ProviderUpdateForm = ({
           <label>Tipo movimiento:</label>
           <select defaultValue="">
             <option value="" disabled> -- Seleccionar -- </option>
-            <option>Alta</option> <option>Actualización</option>
-            <option>Baja</option>
+            <option>Alta</option> 
+            <option>Actualización</option>
           </select>
         </div>
         <div className="provider-description-box">
@@ -60,7 +60,7 @@ const ProviderUpdateForm = ({
       <div className="provider-update-row">
 
         <Input
-          label="Contacto"
+          label="Nombre del contacto"
           name="Nombre del proveedor..."
           value={formData.nombre_proveedor}
           onChange={handleChange}
@@ -112,6 +112,11 @@ const ProviderUpdateForm = ({
             <option value="" disabled>
               -- Seleccionar --
             </option>
+            <option>Tecnología</option>
+
+            <option>Papelería</option>
+
+            <option>Alimentos</option>
 
           </select>
 
@@ -123,9 +128,12 @@ const ProviderUpdateForm = ({
 
           <select defaultValue="">
 
-            <option value="" disabled>
+            <option value={formData.estado} disabled>
               -- Seleccionar --
             </option>
+            <option>Activo</option>
+
+            <option>Inactivo</option>
 
           </select>
 

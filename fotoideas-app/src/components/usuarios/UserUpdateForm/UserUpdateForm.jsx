@@ -12,7 +12,7 @@ const UserUpdateForm = ({ formData, handleChange, handleConfirmar, resetForm }) 
       {/* Fila superior */}
       <div className="user-top-info">
         <div className="user-info-item">
-          <label>ID del empleado:</label>
+          <label>ID del usuario:</label>
           <span>{formData.id_empleado || "Auto generado por la BD"}</span>
         </div>
       </div>
@@ -20,7 +20,7 @@ const UserUpdateForm = ({ formData, handleChange, handleConfirmar, resetForm }) 
       <div className="user-grid">
         <Input
           label="Nombre del empleado"
-          placeholder="Nombre completo"
+          placeholder="Nombre..."
           name="nombre_empleado"
           value={formData.nombre_empleado}
           onChange={handleChange}
@@ -28,7 +28,7 @@ const UserUpdateForm = ({ formData, handleChange, handleConfirmar, resetForm }) 
 
         <Input
           label="Teléfono"
-          placeholder="Teléfono"
+          placeholder="Teléfono..."
           name="telefono_empleado"
           value={formData.telefono_empleado}
           onChange={handleChange}
@@ -37,7 +37,7 @@ const UserUpdateForm = ({ formData, handleChange, handleConfirmar, resetForm }) 
         <div className="user-full">
           <Input
             label="Dirección"
-            placeholder="Dirección completa"
+            placeholder="Dirección..."
             name="direccion_empleado"
             value={formData.direccion_empleado}
             onChange={handleChange}
@@ -54,7 +54,7 @@ const UserUpdateForm = ({ formData, handleChange, handleConfirmar, resetForm }) 
 
         <Input
           label="RFC"
-          placeholder="RFC del empleado"
+          placeholder="RFC..."
           name="rfc_empleado"
           value={formData.rfc_empleado}
           onChange={handleChange}
@@ -62,15 +62,15 @@ const UserUpdateForm = ({ formData, handleChange, handleConfirmar, resetForm }) 
 
         <Input
           label="NSS"
-          placeholder="Número de Seguro Social"
+          placeholder="Número de Seguro Social..."
           name="nss_empleado"
           value={formData.nss_empleado}
           onChange={handleChange}
         />
 
         <Input
-          label="Nombre de Usuario (Login)"
-          placeholder="Usuario"
+          label="Usuario"
+          placeholder="Usuario..."
           name="username"
           value={formData.username}
           onChange={handleChange}
@@ -79,7 +79,7 @@ const UserUpdateForm = ({ formData, handleChange, handleConfirmar, resetForm }) 
         <Input
           label="Contraseña"
           type="password"
-          placeholder="Dejar en blanco para no cambiar"
+          placeholder="Dejar en blanco para no cambiar..."
           name="password"
           value={formData.password}
           onChange={handleChange}
@@ -92,7 +92,7 @@ const UserUpdateForm = ({ formData, handleChange, handleConfirmar, resetForm }) 
           <label>Rol del sistema:</label>
           <select name="id_rol" value={formData.id_rol} onChange={handleChange}>
             <option value={1}>Administrador</option>
-            <option value={2}>Cajero</option>
+            <option value={2}>Empleado</option>
           </select>
         </div>
 
@@ -107,11 +107,11 @@ const UserUpdateForm = ({ formData, handleChange, handleConfirmar, resetForm }) 
 
       {/* Botones */}
       <div className="user-buttons">
-        <Button variant="secondary" onClick={resetForm}>
+        <Button variant="danger" onClick={resetForm}>
           Cancelar
         </Button>
         <Button variant="primary" onClick={handleConfirmar}>
-          Confirmar Actualización
+          Confirmar
         </Button>
       </div>
 

@@ -96,7 +96,7 @@ const ProviderAddForm = ({
           <select defaultValue="">
 
             <option value="" disabled>
-              Seleccione un giro...
+              -- Seleccionar --
             </option>
 
             <option>Tecnología</option>
@@ -113,11 +113,7 @@ const ProviderAddForm = ({
 
           <label>Estado:</label>
 
-          <select defaultValue="">
-
-            <option value="" disabled>
-              Seleccione un estado...
-            </option>
+          <select value={formData.estado} disabled>
 
             <option>Activo</option>
 

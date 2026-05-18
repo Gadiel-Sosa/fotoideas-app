@@ -13,7 +13,7 @@ const UserAddForm = ({ formData, handleChange, handleConfirmar, resetForm }) => 
       <div className="user-top-info">
 
         <div className="user-info-item">
-          <label>ID del cajero:</label>
+          <label>ID del usuario:</label>
           <span>Autogenerado por la BD</span>
         </div>
 
@@ -23,7 +23,7 @@ const UserAddForm = ({ formData, handleChange, handleConfirmar, resetForm }) => 
       <div className="user-grid">
 
         <Input
-          label="Nombre del cajero"
+          label="Nombre del empleado"
           placeholder="Nombre del cajero..."
           name="nombre_empleado"
           value={formData.nombre_empleado}

@@ -1,11 +1,16 @@
-import React from "react";
+import TableContainer from "../../ui/TableContainer/TableContainer";
+import EmptyState from "../../ui/EmptyState/EmptyState";
 import "./ProviderTable.css";
-import Button from "../../ui/Button/Button";
 
 const ProviderTable = ({ proveedores, handleAccionDesdeTabla }) => {
+  if (proveedores.length === 0) {
+    return <EmptyState message="No hay proveedores registrados en el catálogo" />;
+  }
+
   return (
-    <div className="table-container">
-      <table className="custom-table">
+    <TableContainer>
+      <div className="inventory-table">
+        <table>
         <thead>
           <tr>
             <th>ID</th>
@@ -13,6 +18,7 @@ const ProviderTable = ({ proveedores, handleAccionDesdeTabla }) => {
             <th>Contacto</th>
             <th>Teléfono</th>
             <th>RFC</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -20,25 +26,25 @@ const ProviderTable = ({ proveedores, handleAccionDesdeTabla }) => {
           {proveedores.map((prov) => (
             <tr key={prov.id_proveedor}>
               <td>{prov.id_proveedor}</td>
-              <td><strong>{prov.nombre_empresa}</strong></td>
+              <td><strong>{prov.nombre_empresa || 'Sin registro aún'}</strong></td>
               <td>{prov.nombre_proveedor}</td>
-              <td>{prov.telefono_proveedor}</td>
+              <td>{prov.telefono_proveedor || 'N/A'}</td>
               <td>{prov.rfc_proveedor}</td>
               <td>
-                <div className="table-actions">
-                  <Button variant="secondary" onClick={() => handleAccionDesdeTabla(prov, "actualizar")}>
-                    Editar
-                  </Button>
-                  <Button variant="danger" onClick={() => handleAccionDesdeTabla(prov, "borrar")}>
-                    Borrar
-                  </Button>
-                </div>
+                <span className={`status-badge ${(prov.estado || 'Activo').toLowerCase() === 'inactivo' ? 'status-inactive' : 'status-active'}`}>
+                  {(prov.estado || 'Activo').toLowerCase() === 'inactivo' ? 'Inactivo' : 'Activo'}
+                </span>
+              </td>
+              <td className="action-buttons">
+                <button onClick={() => handleAccionDesdeTabla(prov, "actualizar")}>Editar</button>
+                <button onClick={() => handleAccionDesdeTabla(prov, "borrar")}>Eliminar</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
+    </TableContainer>
   );
 };
 
