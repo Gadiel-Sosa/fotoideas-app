@@ -1,0 +1,20 @@
+/* Animación de "flotar" para las tarjetas de arriba */
+.hover-card {
+  transition: transform 0.3s ease-in-out;
+}
+
+.hover-card:hover {
+  transform: translateY(-8px);
+}
+
+/* Animación de "brillo y crecer" para los accesos rápidos */
+.quick-action-btn {
+  transition: all 0.3s ease-in-out;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-5px) scale(1.02);
+  /* Utilizamos !important para sobreescribir el estilo que está directo en el HTML */
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; 
+  filter: brightness(1.1);
+}
