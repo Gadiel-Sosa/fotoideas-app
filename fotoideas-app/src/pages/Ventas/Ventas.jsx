@@ -143,7 +143,6 @@ const Ventas = () => {
           saleNumber={ventas.length + 1}
           date={new Date().toLocaleDateString()}
           time={new Date().toLocaleTimeString()}
-          cashier={usuario ? usuario.nombre_empleado : "Sin asignar"}
         />
 
         <br />

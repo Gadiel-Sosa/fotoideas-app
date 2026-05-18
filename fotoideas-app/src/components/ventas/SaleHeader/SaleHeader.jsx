@@ -1,6 +1,6 @@
 import "./SaleHeader.css"
 
-const SaleHeader = ({saleNumber, date, time, cashier}) => {
+const SaleHeader = ({saleNumber, date, time}) => {
   return (
 
     <div className="sale-header">
@@ -13,8 +13,6 @@ const SaleHeader = ({saleNumber, date, time, cashier}) => {
         <span>Fecha: {date}</span>
         <br />
         <span>Hora: {time}</span>
-        <br />
-        <span style={{ fontWeight: 'bold' }}>Cajero: {cashier}</span>
       </div>
 
     </div>
