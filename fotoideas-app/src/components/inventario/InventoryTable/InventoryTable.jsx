@@ -32,7 +32,7 @@ const InventoryTable = ({ productos, handleAccionDesdeTabla }) => {
               <td>{p.categoria || "Sin categoría"}</td>
               <td>${Number(p.precio_publico || 0).toFixed(2)}</td>
               <td>
-                <span className={`stock-badge ${p.stock <= 5 ? 'stock-low' : 'stock-ok'}`}>
+                <span className={`stock-badge ${p.stock <= 10 ? 'stock-low' : 'stock-ok'}`}>
                   {p.stock}
                 </span>
               </td>

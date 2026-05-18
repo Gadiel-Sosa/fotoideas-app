@@ -260,7 +260,12 @@ app.get('/api/dashboard/stats', async (req, res) => {
     const provQuery = await pool.query('SELECT COUNT(*) AS total FROM Proveedor');
     
     // Alertas (productos con inventario bajo, ej. menos de 10)
-    const alertasQuery = await pool.query('SELECT COUNT(*) AS total FROM Inventario WHERE cantidad_inventario < 10');
+    const alertasQuery = await pool.query(`
+      SELECT COUNT(*) AS total 
+      FROM Inventario i
+      JOIN Producto p ON i.id_producto = p.id_producto
+      WHERE i.cantidad_inventario < 10 AND p.estado_producto = 'activo'
+    `);
 
     res.json({
       ventasDelDia: parseFloat(ventasQuery.rows[0].total),
@@ -820,7 +825,7 @@ app.get('/api/reportes/stock-bajo', async (req, res) => {
       `SELECT p.codigo_barras_producto as codigo, p.nombre_producto as nombre, p.precio_venta, i.cantidad_inventario as stock
        FROM Producto p
        JOIN Inventario i ON p.id_producto = i.id_producto
-       WHERE i.cantidad_inventario <= 10
+       WHERE i.cantidad_inventario < 10 AND p.estado_producto = 'activo'
        ORDER BY stock ASC`
     );
     res.json({ success: true, datos: result.rows });

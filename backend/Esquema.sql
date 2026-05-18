@@ -186,3 +186,67 @@ CREATE TABLE Empleado_Rol (
     FOREIGN KEY (id_empleado) REFERENCES Empleado(id_empleado)
 );
 
+<<<<<<< HEAD
+=======
+-- ==========================================================
+-- SCRIPT DE DATOS INICIALES (Población de la BD) - FotoIdeas
+-- ==========================================================
+
+-- 1. CREACIÓN DE LA SUCURSAL (Obligatorio para inventario y empleados)
+INSERT INTO Sucursal (nombre_sucursal, direccion_sucursal) 
+VALUES ('Sucursal Matriz Centro', 'Calle 60 #123, Centro, Mérida, Yucatán');
+
+-- 2. CREACIÓN DE LOS ROLES DEL SISTEMA
+INSERT INTO Rol_user (nombre_rol) 
+VALUES ('Administrador'), ('Empleado');
+
+-- 3. CONFIGURACIÓN DEL PIN DE SEGURIDAD PARA EL ADMIN (Para autorizar cancelaciones)
+-- OJO: Aquí estoy asignando el PIN '2026' al rol de Administrador (id_rol = 1)
+INSERT INTO Admin (pin_seguridad, id_rol) 
+VALUES ('2026', 1);
+
+-- 4. ALTA DE EMPLEADOS (Como lo pusimos en el Manual)
+INSERT INTO Empleado (nombre_empleado, telefono_empleado, direccion_empleado, rfc_empleado, id_sucursal) 
+VALUES 
+('Carlos Gerente', '9991234567', 'Norte Mérida', 'CAGX801231XXX', 1),
+('Maria Ventas', '9997654321', 'Sur Mérida', 'MAVX951015XXX', 1);
+
+-- 5. ASIGNACIÓN DE CREDENCIALES (Login)
+INSERT INTO Credencial (id_empleado, username, contraseña_usuario, estado_credencial) 
+VALUES 
+(1, 'carlos_ger', 'adminpass1', TRUE),
+(2, 'maria_ventas', 'ventas2026', TRUE);
+
+-- 6. ASIGNACIÓN DE ROLES A LOS EMPLEADOS
+INSERT INTO Empleado_Rol (id_empleado, id_rol) 
+VALUES 
+(1, 1), -- Carlos es Administrador (Rol 1)
+(2, 2); -- Maria es Empleada (Rol 2)
+
+-- 7. CATÁLOGO DE PROVEEDORES
+INSERT INTO Proveedor (nombre_proveedor, nombre_empresa, telefono_proveedor, correo_proveedor, RFC_proveedor) 
+VALUES 
+('Juan Perez', 'Sony Mexico', '5551234567', 'contacto@sony.mx', 'SONY123456MX1'),
+('Luis Gomez', 'Canon Latam', '5559876543', 'ventas@canon.com', 'CANO987654LA2'),
+('Armando Casas', 'Manfrotto Dist.', '5557778899', 'ventas@manfrotto.com', 'MANF998877XX3');
+
+-- 8. CATÁLOGO DE PRODUCTOS (Con códigos de barra listos para tu ScannerInput)
+INSERT INTO Producto (nombre_producto, marca_producto, precio_venta, codigo_barras_producto, descripcion, estado_producto) 
+VALUES 
+('Cámara Alpha a7 III', 'Sony', 35000.00, '750100000001', 'Cámara Mirrorless Full-Frame 24.2 MP', 'activo'),
+('Lente 50mm f/1.8 STM', 'Canon', 3500.00, '750100000002', 'Lente fijo ideal para retratos', 'activo'),
+('Memoria SD Extreme 64GB', 'SanDisk', 600.00, '750100000003', 'Memoria SDXC UHS-I V30', 'activo'),
+('Trípode Compact Action', 'Manfrotto', 1500.00, '750100000004', 'Trípode de aluminio para foto y video', 'activo'),
+('Mochila ProTactic BP', 'Lowepro', 3200.00, '750100000005', 'Mochila táctica para equipo fotográfico', 'activo'),
+('Panel Luz LED RGB', 'Godox', 1200.00, '750100000006', 'Luz continua para estudio', 'activo');
+
+-- 9. INVENTARIO INICIAL (Asignado a la sucursal 1)
+INSERT INTO Inventario (id_producto, id_sucursal, cantidad_inventario) 
+VALUES 
+(1, 1, 5),   -- 5 Cámaras Sony
+(2, 1, 12),  -- 12 Lentes Canon
+(3, 1, 25),  -- 25 Memorias (Buen stock)
+(4, 1, 8),   -- 8 Trípodes
+(5, 1, 4),   -- 4 Mochilas (Stock bajo, probará tus alertas)
+(6, 1, 15);  -- 15 Luces LED
+>>>>>>> a5cd69375545ee203ee97348d86e486b78ab0f17
