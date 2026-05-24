@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getAuthHeaders } from "../../services/authService";
 
 import "./Usuarios.css";
 
@@ -60,7 +61,9 @@ const Usuarios = () => {
 
   const cargarUsuarios = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/usuarios");
+      const response = await fetch("http://localhost:3000/api/usuarios", {
+        headers: getAuthHeaders()
+      });
       const data = await response.json();
       if (data.success) {
         setUsuariosList(data.usuarios);
@@ -130,7 +133,7 @@ const Usuarios = () => {
 
       const response = await fetch(url, {
         method: method,
-        headers: { "Content-Type": "application/json" },
+        headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify(formData)
       });
 

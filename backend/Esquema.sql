@@ -57,10 +57,9 @@ CREATE TABLE Credencial (
     id_credencial SERIAL PRIMARY KEY,
     id_empleado INTEGER NOT NULL UNIQUE,
     username VARCHAR(50) NOT NULL UNIQUE,
-    contraseña_usuario VARCHAR(12) NOT NULL,
+    contraseña_usuario VARCHAR(255) NOT NULL,
     estado_credencial BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (id_empleado) REFERENCES Empleado(id_empleado),
-    CONSTRAINT chk_contraseña_long CHECK (LENGTH(contraseña_usuario) BETWEEN 8 AND 12)
+    FOREIGN KEY (id_empleado) REFERENCES Empleado(id_empleado)
 );
 
 CREATE TABLE Corte_caja (

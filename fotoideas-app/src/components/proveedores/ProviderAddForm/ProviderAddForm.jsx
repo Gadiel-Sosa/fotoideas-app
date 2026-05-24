@@ -93,7 +93,11 @@ const ProviderAddForm = ({
 
           <label>Giro:</label>
 
-          <select defaultValue="">
+          <select
+            name="giro"
+            value={formData.giro || ""}
+            onChange={handleChange}
+          >
 
             <option value="" disabled>
               Seleccione un giro...
@@ -113,7 +117,11 @@ const ProviderAddForm = ({
 
           <label>Estado:</label>
 
-          <select defaultValue="">
+          <select
+            name="estado_proveedor"
+            value={formData.estado_proveedor || ""}
+            onChange={handleChange}
+          >
 
             <option value="" disabled>
               Seleccione un estado...

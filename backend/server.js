@@ -1,7 +1,10 @@
 import express from 'express';
 import cors from 'cors';
-import pool from './db.js'; // ¡Ojo! En ES modules es obligatorio poner la extensión .js a tus propios archivos
+import pool from './db.js';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { authenticateToken, requireAdmin } from './middleware/auth.js';
 
 dotenv.config();
 
@@ -9,8 +12,10 @@ dotenv.config();
 const app = express();
 
 // Middlewares
-app.use(cors()); // Permite peticiones desde el frontend (React)
-app.use(express.json()); // Permite recibir datos en formato JSON
+app.use(cors());
+app.use(express.json());
+
+const SALT_ROUNDS = 10;
 
 // Ruta de prueba para verificar que la API funciona
 app.get('/', (req, res) => {
@@ -21,34 +26,58 @@ app.get('/', (req, res) => {
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
+  if (!username || !password) {
+    return res.status(400).json({ success: false, error: 'Usuario y contraseña son requeridos' });
+  }
+
   try {
-    // 1. Verificamos si el usuario y contraseña existen
     const result = await pool.query(
-      `SELECT c.id_credencial, c.id_empleado, e.nombre_empleado, r.id_rol, r.nombre_rol 
+      `SELECT c.id_credencial, c.id_empleado, c.contraseña_usuario, e.nombre_empleado, r.id_rol, r.nombre_rol 
        FROM Credencial c 
        JOIN Empleado e ON c.id_empleado = e.id_empleado 
        LEFT JOIN Empleado_Rol er ON e.id_empleado = er.id_empleado
        LEFT JOIN Rol_user r ON er.id_rol = r.id_rol
-       WHERE c.username = $1 AND c.contraseña_usuario = $2 AND c.estado_credencial = TRUE`,
-      [username, password]
+       WHERE c.username = $1 AND c.estado_credencial = TRUE`,
+      [username]
     );
 
-    // 2. Si el login es exitoso (el usuario existe)
-    if (result.rows.length > 0) {
-      const user = result.rows[0];
-      
-      // 3. AQUÍ HACEMOS LA AUDITORÍA: Insertamos el registro en la tabla Sesion
-      // Como le pusimos DEFAULT a la fecha y hora en SQL, solo mandamos el ID
-      await pool.query(
-        `INSERT INTO Sesion (id_credencial) VALUES ($1)`,
-        [user.id_credencial]
-      );
-
-      // Le damos acceso al usuario en el Frontend
-      res.json({ success: true, user });
-    } else {
-      res.status(401).json({ success: false, error: 'Credenciales incorrectas' });
+    if (result.rows.length === 0) {
+      return res.status(401).json({ success: false, error: 'Credenciales incorrectas' });
     }
+
+    const user = result.rows[0];
+    const passwordMatch = await bcrypt.compare(password, user.contraseña_usuario);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ success: false, error: 'Credenciales incorrectas' });
+    }
+
+    await pool.query(
+      `INSERT INTO Sesion (id_credencial) VALUES ($1)`,
+      [user.id_credencial]
+    );
+
+    const tokenPayload = {
+      id_credencial: user.id_credencial,
+      id_empleado: user.id_empleado,
+      nombre_empleado: user.nombre_empleado,
+      id_rol: user.id_rol,
+      nombre_rol: user.nombre_rol
+    };
+
+    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: '8h' });
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id_credencial: user.id_credencial,
+        id_empleado: user.id_empleado,
+        nombre_empleado: user.nombre_empleado,
+        id_rol: user.id_rol,
+        nombre_rol: user.nombre_rol
+      }
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ success: false, error: 'Error del servidor' });
@@ -56,14 +85,18 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Endpoint para verificar credenciales de administrador (Para PIN de seguridad)
-app.post('/api/verify-admin', async (req, res) => {
+app.post('/api/verify-admin', authenticateToken, async (req, res) => {
   const { pin } = req.body;
+
+  if (!pin) {
+    return res.status(400).json({ success: false, error: 'PIN es requerido' });
+  }
 
   try {
     const result = await pool.query(
-      `SELECT id_rol 
-       FROM Admin 
-       WHERE pin_seguridad = $1`,
+      `SELECT a.id_rol 
+       FROM Admin a
+       WHERE a.pin_seguridad = $1`,
       [pin]
     );
 
@@ -78,8 +111,8 @@ app.post('/api/verify-admin', async (req, res) => {
   }
 });
 
-// Ejemplo 1: Obtener productos reales de la tabla 'Producto' de tu BD
-app.get('/api/productos', async (req, res) => {
+// Endpoint para obtener productos
+app.get('/api/productos', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT p.id_producto, p.codigo_barras_producto, p.nombre_producto, 
@@ -98,8 +131,18 @@ app.get('/api/productos', async (req, res) => {
 });
 
 // Registrar un nuevo producto en Inventario
-app.post('/api/productos', async (req, res) => {
+app.post('/api/productos', authenticateToken, requireAdmin, async (req, res) => {
   const { codigo_barras, nombre, categoria, descripcion, precio_publico, stock, estado } = req.body;
+
+  if (!nombre) {
+    return res.status(400).json({ success: false, error: 'Nombre del producto es requerido' });
+  }
+  if (precio_publico !== undefined && (isNaN(parseFloat(precio_publico)) || parseFloat(precio_publico) < 0)) {
+    return res.status(400).json({ success: false, error: 'Precio debe ser un número positivo' });
+  }
+  if (stock !== undefined && (!Number.isInteger(parseInt(stock)) || parseInt(stock) < 0)) {
+    return res.status(400).json({ success: false, error: 'Stock debe ser un número entero positivo' });
+  }
 
   const client = await pool.connect();
   try {
@@ -133,9 +176,16 @@ app.post('/api/productos', async (req, res) => {
 });
 
 // Actualizar un producto existente
-app.put('/api/productos/:id', async (req, res) => {
+app.put('/api/productos/:id', authenticateToken, requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { codigo_barras, nombre, categoria, descripcion, precio_publico, stock, estado } = req.body;
+
+  if (!id || isNaN(parseInt(id))) {
+    return res.status(400).json({ success: false, error: 'ID de producto inválido' });
+  }
+  if (precio_publico !== undefined && (isNaN(parseFloat(precio_publico)) || parseFloat(precio_publico) < 0)) {
+    return res.status(400).json({ success: false, error: 'Precio debe ser un número positivo' });
+  }
 
   const client = await pool.connect();
   try {
@@ -167,7 +217,7 @@ app.put('/api/productos/:id', async (req, res) => {
 });
 
 // Borrar (Dar de baja) un producto lógicamente
-app.delete('/api/productos/:id', async (req, res) => {
+app.delete('/api/productos/:id', authenticateToken, requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body; // Recibirá "inactivo"
 
@@ -191,7 +241,7 @@ app.delete('/api/productos/:id', async (req, res) => {
 });
 
 // Obtener todos los proveedores
-app.get('/api/proveedores', async (req, res) => {
+app.get('/api/proveedores', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM Proveedor ORDER BY id_proveedor DESC');
     res.json({ success: true, proveedores: result.rows });
@@ -202,8 +252,15 @@ app.get('/api/proveedores', async (req, res) => {
 });
 
 // Registrar un nuevo proveedor
-app.post('/api/proveedores', async (req, res) => {
+app.post('/api/proveedores', authenticateToken, requireAdmin, async (req, res) => {
   const { nombre_proveedor, nombre_empresa, telefono_proveedor, correo_proveedor, RFC_proveedor, direccion_proveedor } = req.body;
+  
+  if (!nombre_proveedor || nombre_proveedor.trim() === '') {
+    return res.status(400).json({ success: false, error: 'Nombre del proveedor es requerido' });
+  }
+  if (correo_proveedor && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo_proveedor)) {
+    return res.status(400).json({ success: false, error: 'Formato de correo inválido' });
+  }
   try {
     const result = await pool.query(
       `INSERT INTO Proveedor (nombre_proveedor, nombre_empresa, telefono_proveedor, correo_proveedor, RFC_proveedor, direccion_proveedor)
@@ -218,9 +275,16 @@ app.post('/api/proveedores', async (req, res) => {
 });
 
 // Actualizar proveedor existente
-app.put('/api/proveedores/:id', async (req, res) => {
+app.put('/api/proveedores/:id', authenticateToken, requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { nombre_proveedor, nombre_empresa, telefono_proveedor, correo_proveedor, RFC_proveedor, direccion_proveedor } = req.body;
+
+  if (!id || isNaN(parseInt(id))) {
+    return res.status(400).json({ success: false, error: 'ID de proveedor inválido' });
+  }
+  if (correo_proveedor && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo_proveedor)) {
+    return res.status(400).json({ success: false, error: 'Formato de correo inválido' });
+  }
   try {
     await pool.query(
       `UPDATE Proveedor 
@@ -235,8 +299,8 @@ app.put('/api/proveedores/:id', async (req, res) => {
   }
 });
 
-// Eliminar proveedor (Nota: Fallará de forma segura si tiene compras, gracias a las llaves foráneas de SQL)
-app.delete('/api/proveedores/:id', async (req, res) => {
+// Eliminar proveedor
+app.delete('/api/proveedores/:id', authenticateToken, requireAdmin, async (req, res) => {
   const { id } = req.params;
   try {
     await pool.query('DELETE FROM Proveedor WHERE id_proveedor = $1', [id]);
@@ -247,8 +311,8 @@ app.delete('/api/proveedores/:id', async (req, res) => {
   }
 });
 
-// Ejemplo 2: Datos para llenar las tarjetas del Dashboard consultando a Docker
-app.get('/api/dashboard/stats', async (req, res) => {
+// Datos para llenar las tarjetas del Dashboard
+app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
   try {
     // Ventas del día actual (usando tu tabla Venta)
     const ventasQuery = await pool.query('SELECT COALESCE(SUM(total_venta), 0) AS total FROM Venta WHERE fecha_venta = CURRENT_DATE');
@@ -284,7 +348,7 @@ app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
 // Obtener producto por código de barras
-app.get('/api/productos/codigo/:codigo', async (req, res) => {
+app.get('/api/productos/codigo/:codigo', authenticateToken, async (req, res) => {
   const { codigo } = req.params;
 
   try {
@@ -321,40 +385,45 @@ app.get('/api/productos/codigo/:codigo', async (req, res) => {
 });
 
 
-// Obtener datos para el corte de caja (ventas del turno, cajero, etc.)
-app.get('/api/corte/datos', async (req, res) => {
+// Obtener datos para el corte de caja
+app.get('/api/corte/datos', authenticateToken, async (req, res) => {
   try {
-    // Obtener el id_empleado desde la petición (si no llega, usa 1 por defecto)
-    const id_empleado = req.query.id_empleado || 1;
+    const id_empleado = req.user?.id_empleado;
+    
+    if (!id_empleado) {
+      return res.status(401).json({ success: false, error: 'Empleado no identificado' });
+    }
+
     const empleadoResult = await pool.query(
       `SELECT id_empleado, nombre_empleado 
        FROM Empleado 
        WHERE id_empleado = $1`, [id_empleado]
     );
 
-    // Obtener el corte de caja activo (que NO tenga efectivo_real, es decir, no esté cerrado)
+    if (empleadoResult.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Empleado no encontrado' });
+    }
+
     let corteResult = await pool.query(
       `SELECT id_corte_caja, monto_inicial, fecha_corte
        FROM Corte_caja 
        WHERE id_empleado = $1 AND efectivo_real IS NULL
        ORDER BY id_corte_caja DESC 
        LIMIT 1`,
-      [empleadoResult.rows[0]?.id_empleado || 1]
+      [id_empleado]
     );
 
     let corteActivo = corteResult.rows[0];
 
-    // Si no hay un turno abierto, lo creamos automáticamente en ceros
     if (!corteActivo) {
       const nuevoCorte = await pool.query(
         `INSERT INTO Corte_caja (id_empleado, fecha_corte, hora_corte, monto_inicial)
          VALUES ($1, CURRENT_DATE, CURRENT_TIME, 0) RETURNING id_corte_caja, monto_inicial, fecha_corte`,
-        [empleadoResult.rows[0]?.id_empleado || 1]
+        [id_empleado]
       );
       corteActivo = nuevoCorte.rows[0];
     }
 
-    // Obtener ventas asociadas únicamente a este turno/corte específico
     const ventasResult = await pool.query(
       `SELECT COALESCE(SUM(total_venta), 0) as total_ventas
        FROM Venta 
@@ -385,19 +454,26 @@ app.get('/api/corte/datos', async (req, res) => {
 });
 
 // Realizar corte de caja
-app.post('/api/corte/realizar', async (req, res) => {
+app.post('/api/corte/realizar', authenticateToken, async (req, res) => {
   const { 
     id_corte,
-    monto_inicial, // Recibido desde el frontend
+    monto_inicial,
     efectivo_real, 
     pago_proveedores, 
-    observaciones_corte,
-    id_empleado // Recibido desde el frontend
+    observaciones_corte
   } = req.body;
 
-  try {
-    const idEmp = id_empleado || 1;
+  const idEmp = req.user?.id_empleado;
+  
+  if (!idEmp) {
+    return res.status(401).json({ success: false, error: 'Empleado no identificado' });
+  }
 
+  if (!efectivo_real || isNaN(parseFloat(efectivo_real))) {
+    return res.status(400).json({ success: false, error: 'Efectivo real es requerido y debe ser un número' });
+  }
+
+  try {
     // Obtener ventas asociadas únicamente a este corte específico
     const ventasResult = await pool.query(
       `SELECT COALESCE(SUM(total_venta), 0) as total_ventas
@@ -408,7 +484,6 @@ app.post('/api/corte/realizar', async (req, res) => {
 
     const ventasTotales = parseFloat(ventasResult.rows[0].total_ventas);
     
-    // Determinar monto inicial (del frontend si se envió, si no, lo buscamos)
     let montoInicialFinal = parseFloat(monto_inicial) || 0;
     
     if (id_corte && montoInicialFinal === 0) {
@@ -426,7 +501,6 @@ app.post('/api/corte/realizar', async (req, res) => {
     const diferencia_caja = efectivo_real - efectivoEsperado;
 
     if (id_corte) {
-      // Actualizar el corte existente con los valores finales
       await pool.query(
         `UPDATE Corte_caja 
          SET monto_inicial = $1,
@@ -440,7 +514,6 @@ app.post('/api/corte/realizar', async (req, res) => {
         [montoInicialFinal, efectivoEsperado, efectivo_real, diferencia_caja, pago_proveedores, observaciones_corte, id_corte]
       );
     } else {
-      // Si no existía un turno abierto, creamos el registro del corte
       await pool.query(
         `INSERT INTO Corte_caja 
          (id_empleado, monto_inicial, fecha_corte, hora_corte, efectivo_esperado, efectivo_real, diferencia_caja, pago_proveedores, observaciones_corte)
@@ -463,8 +536,8 @@ app.post('/api/corte/realizar', async (req, res) => {
   }
 });
 
-// Obtener historial de cortes de caja (Para consultar)
-app.get('/api/cortes', async (req, res) => {
+// Obtener historial de cortes de caja
+app.get('/api/cortes', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT c.id_corte_caja, c.fecha_corte, c.hora_corte, c.monto_inicial, 
@@ -482,9 +555,11 @@ app.get('/api/cortes', async (req, res) => {
   }
 });
 
-// Obtener historial de ventas (Para consultar)
-app.get('/api/ventas', async (req, res) => {
-  const { id_empleado, rol } = req.query;
+// Obtener historial de ventas
+app.get('/api/ventas', authenticateToken, async (req, res) => {
+  const { rol } = req.query;
+  const id_empleado = req.user?.id_empleado;
+  
   try {
     let query = 
       `SELECT v.id_venta, v.fecha_venta, v.hora_venta, v.total_venta, v.forma_pago, e.nombre_empleado,
@@ -504,7 +579,7 @@ app.get('/api/ventas', async (req, res) => {
     let params = [];
     if (rol && rol !== 'Admin' && rol !== 'Administrador') {
       query += ` WHERE v.id_empleado = $1 AND v.fecha_venta = CURRENT_DATE`;
-      params.push(id_empleado || 1);
+      params.push(id_empleado);
     }
 
     query += ` ORDER BY v.id_venta DESC`;
@@ -518,8 +593,23 @@ app.get('/api/ventas', async (req, res) => {
 });
 
 // Registrar (Guardar) una nueva venta
-app.post('/api/ventas', async (req, res) => {
-  const { id_corte_caja, id_empleado, total_venta, forma_pago, productos } = req.body;
+app.post('/api/ventas', authenticateToken, async (req, res) => {
+  const { id_corte_caja, total_venta, forma_pago, productos } = req.body;
+  
+  const id_empleado = req.user?.id_empleado;
+  
+  if (!id_empleado) {
+    return res.status(401).json({ success: false, error: 'Empleado no identificado' });
+  }
+  if (!total_venta || isNaN(parseFloat(total_venta))) {
+    return res.status(400).json({ success: false, error: 'Total de venta es requerido y debe ser un número' });
+  }
+  if (!forma_pago || !['Efectivo', 'Tarjeta'].includes(forma_pago)) {
+    return res.status(400).json({ success: false, error: 'Forma de pago debe ser Efectivo o Tarjeta' });
+  }
+  if (!productos || productos.length === 0) {
+    return res.status(400).json({ success: false, error: 'Se requiere al menos un producto' });
+  }
   
   const client = await pool.connect();
   try {
@@ -575,12 +665,15 @@ app.post('/api/ventas', async (req, res) => {
 });
 
 // Cancelar una venta ya realizada (Borrado Lógico)
-app.delete('/api/ventas/:id', async (req, res) => {
+app.delete('/api/ventas/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { motivo, id_rol } = req.body;
   
-  if (!motivo || !id_rol) {
-    return res.status(400).json({ success: false, error: "Faltan datos obligatorios (motivo o rol)" });
+  if (!motivo || motivo.trim() === '') {
+    return res.status(400).json({ success: false, error: "Motivo de cancelación es requerido" });
+  }
+  if (!id_rol) {
+    return res.status(400).json({ success: false, error: "Rol es requerido" });
   }
 
   const client = await pool.connect();
@@ -633,7 +726,7 @@ app.delete('/api/ventas/:id', async (req, res) => {
 // ==========================================
 
 // Obtener todos los empleados y sus credenciales
-app.get('/api/usuarios', async (req, res) => {
+app.get('/api/usuarios', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT e.id_empleado, e.nombre_empleado, e.telefono_empleado, e.direccion_empleado, 
@@ -654,13 +747,20 @@ app.get('/api/usuarios', async (req, res) => {
 });
 
 // Crear un nuevo empleado y su credencial
-app.post('/api/usuarios', async (req, res) => {
+app.post('/api/usuarios', authenticateToken, requireAdmin, async (req, res) => {
   const { nombre_empleado, telefono_empleado, direccion_empleado, fecha_nacimiento, rfc_empleado, nss_empleado, id_sucursal, username, password, id_rol } = req.body;
+  
+  if (!nombre_empleado || nombre_empleado.trim() === '') {
+    return res.status(400).json({ success: false, error: 'Nombre del empleado es requerido' });
+  }
+  if (username && (!password || password.length < 8 || password.length > 12)) {
+    return res.status(400).json({ success: false, error: 'Contraseña debe tener entre 8 y 12 caracteres' });
+  }
+  
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     
-    // 1. Insertar Empleado
     const empRes = await client.query(
       `INSERT INTO Empleado (nombre_empleado, telefono_empleado, direccion_empleado, fecha_nacimiento, rfc_empleado, nss_empleado, id_sucursal)
        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id_empleado`,
@@ -669,16 +769,15 @@ app.post('/api/usuarios', async (req, res) => {
     
     const id_empleado = empRes.rows[0].id_empleado;
     
-    // 2. Insertar Credencial si se proporcionó usuario y contraseña
     if (username && password) {
+      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
       await client.query(
         `INSERT INTO Credencial (id_empleado, username, contraseña_usuario, estado_credencial)
          VALUES ($1, $2, $3, TRUE)`,
-        [id_empleado, username, password]
+        [id_empleado, username, hashedPassword]
       );
     }
     
-    // 3. Insertar Rol
     if (id_rol) {
       await client.query(
         `INSERT INTO Empleado_Rol (id_empleado, id_rol) VALUES ($1, $2)`,
@@ -698,9 +797,16 @@ app.post('/api/usuarios', async (req, res) => {
 });
 
 // Actualizar empleado y credencial
-app.put('/api/usuarios/:id', async (req, res) => {
+app.put('/api/usuarios/:id', authenticateToken, requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { nombre_empleado, telefono_empleado, direccion_empleado, fecha_nacimiento, rfc_empleado, nss_empleado, username, password, estado_credencial, id_rol } = req.body;
+
+  if (!id || isNaN(parseInt(id))) {
+    return res.status(400).json({ success: false, error: 'ID de usuario inválido' });
+  }
+  if (password && (password.length < 8 || password.length > 12)) {
+    return res.status(400).json({ success: false, error: 'Contraseña debe tener entre 8 y 12 caracteres' });
+  }
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -721,17 +827,19 @@ app.put('/api/usuarios/:id', async (req, res) => {
          let params = [username, estado_credencial !== undefined ? estado_credencial : true];
          
          if (password && password.trim() !== '') {
+           const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
            query += `, contraseña_usuario=$3 WHERE id_empleado=$4`;
-           params.push(password, id);
+           params.push(hashedPassword, id);
          } else {
            query += ` WHERE id_empleado=$3`;
            params.push(id);
          }
          await client.query(query, params);
       } else if (password) {
+         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
          await client.query(
           `INSERT INTO Credencial (id_empleado, username, contraseña_usuario, estado_credencial) VALUES ($1, $2, $3, $4)`,
-          [id, username, password, estado_credencial !== undefined ? estado_credencial : true]
+          [id, username, hashedPassword, estado_credencial !== undefined ? estado_credencial : true]
          );
       }
     }
@@ -761,7 +869,7 @@ app.put('/api/usuarios/:id', async (req, res) => {
 });
 
 // Dar de baja un usuario (Borrado lógico)
-app.delete('/api/usuarios/:id', async (req, res) => {
+app.delete('/api/usuarios/:id', authenticateToken, requireAdmin, async (req, res) => {
   const { id } = req.params;
   try {
     await pool.query(`UPDATE Credencial SET estado_credencial = FALSE WHERE id_empleado = $1`, [id]);
@@ -778,8 +886,12 @@ app.delete('/api/usuarios/:id', async (req, res) => {
 
 
 // 1. Reporte de Ventas por periodo
-app.get('/api/reportes/ventas', async (req, res) => {
+app.get('/api/reportes/ventas', authenticateToken, requireAdmin, async (req, res) => {
   const { inicio, fin } = req.query;
+  
+  if (!inicio || !fin) {
+    return res.status(400).json({ success: false, error: 'Fechas de inicio y fin son requeridas' });
+  }
   try {
     const result = await pool.query(
       `SELECT v.id_venta, v.fecha_venta, v.hora_venta, v.total_venta, v.forma_pago, e.nombre_empleado
@@ -796,8 +908,12 @@ app.get('/api/reportes/ventas', async (req, res) => {
 });
 
 // 2. Reporte de Productos Más Vendidos
-app.get('/api/reportes/mas-vendidos', async (req, res) => {
+app.get('/api/reportes/mas-vendidos', authenticateToken, requireAdmin, async (req, res) => {
   const { inicio, fin } = req.query;
+  
+  if (!inicio || !fin) {
+    return res.status(400).json({ success: false, error: 'Fechas de inicio y fin son requeridas' });
+  }
   try {
     const result = await pool.query(
       `SELECT p.codigo_barras_producto as codigo, p.nombre_producto as nombre, 
@@ -819,7 +935,7 @@ app.get('/api/reportes/mas-vendidos', async (req, res) => {
 });
 
 // 3. Reporte de Stock Bajo
-app.get('/api/reportes/stock-bajo', async (req, res) => {
+app.get('/api/reportes/stock-bajo', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT p.codigo_barras_producto as codigo, p.nombre_producto as nombre, p.precio_venta, i.cantidad_inventario as stock
@@ -835,8 +951,12 @@ app.get('/api/reportes/stock-bajo', async (req, res) => {
 });
 
 // 4. Reporte de Compras/Pagos a Proveedores
-app.get('/api/reportes/compras-proveedor', async (req, res) => {
+app.get('/api/reportes/compras-proveedor', authenticateToken, requireAdmin, async (req, res) => {
   const { inicio, fin } = req.query;
+  
+  if (!inicio || !fin) {
+    return res.status(400).json({ success: false, error: 'Fechas de inicio y fin son requeridas' });
+  }
   try {
     const result = await pool.query(
       `SELECT c.id_corte_caja, c.fecha_corte, c.hora_corte, c.pago_proveedores, e.nombre_empleado 

@@ -1,8 +1,13 @@
+import { getAuthHeaders, apiFetch } from "./authService";
+
 const API_URL = "http://localhost:3000/api/ventas";
 
-export const obtenerVentas = async () => {
+export const obtenerVentas = async (rol) => {
   try {
-    const response = await fetch(API_URL);
+    const url = rol ? `${API_URL}?rol=${rol}` : API_URL;
+    const response = await fetch(url, {
+      headers: getAuthHeaders()
+    });
     const data = await response.json();
     if (!data.success) {
       throw new Error(data.error || "Error al obtener las ventas");
@@ -18,9 +23,7 @@ export const registrarVenta = async (ventaData) => {
   try {
     const response = await fetch(API_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(ventaData)
     });
 
@@ -39,9 +42,7 @@ export const cancelarVentaRealizada = async (idVenta, motivo, id_rol) => {
   try {
     const response = await fetch(`${API_URL}/${idVenta}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ motivo, id_rol })
     });
 

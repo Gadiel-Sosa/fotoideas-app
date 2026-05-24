@@ -34,9 +34,8 @@ const Login = () => {
       const data = await response.json();
       
       if (data.success) {
-        // Guardamos el token de autorización
+        localStorage.setItem("token", data.token);
         localStorage.setItem("auth", "true");
-        // Guardamos la información del empleado que la API nos devuelve
         localStorage.setItem("user", JSON.stringify(data.user)); 
         
         navigate("/dashboard");

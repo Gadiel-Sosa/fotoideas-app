@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./ConsultarVentas.css"
 import EmptyState from "../../ui/EmptyState/EmptyState";
 import TableContainer from "../../ui/TableContainer/TableContainer";
-import { cancelarVentaRealizada } from "../../../services/ventaService";
+import { obtenerVentas, cancelarVentaRealizada } from "../../../services/ventaService";
 
 const ConsultarVentas = () => {
   const [ventas, setVentas] = useState([]);
@@ -17,14 +17,10 @@ const ConsultarVentas = () => {
   const cargarVentas = async () => {
     try {
       const usuarioLocal = JSON.parse(localStorage.getItem("user"));
-      const idEmpleado = usuarioLocal ? usuarioLocal.id_empleado : 1;
       const rol = usuarioLocal ? usuarioLocal.nombre_rol : "Empleado";
 
-      const response = await fetch(`http://localhost:3000/api/ventas?id_empleado=${idEmpleado}&rol=${rol}`);
-      const data = await response.json();
-      if (data.success) {
-        setVentas(data.ventas);
-      }
+      const data = await obtenerVentas(rol);
+      setVentas(data);
     } catch (error) {
       console.error("Error al cargar ventas:", error);
     }
@@ -44,12 +40,17 @@ const ConsultarVentas = () => {
 
     try {
       const usuarioLocal = JSON.parse(localStorage.getItem("user"));
-      const idRol = usuarioLocal?.id_rol || 1; // Usa el rol del usuario o 1 (Admin) por defecto
+      const idRol = usuarioLocal?.id_rol;
+      
+      if (!idRol) {
+        alert("Error: No se pudo identificar el rol del usuario");
+        return;
+      }
 
       await cancelarVentaRealizada(ventaACancelar.id_venta, motivoCancelacion, idRol);
       alert("Venta eliminada del historial exitosamente");
       setModalVisible(false);
-      cargarVentas(); // Recarga la tabla para desaparecer la venta
+      cargarVentas();
     } catch (error) {
       alert("Error al cancelar: " + error.message);
     }

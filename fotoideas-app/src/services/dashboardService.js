@@ -1,7 +1,11 @@
+import { getAuthHeaders } from "./authService";
+
 const BASE_URL = "http://localhost:3000/api";
 
 export const getStats = async () => {
-  const response = await fetch(`${BASE_URL}/dashboard/stats`);
+  const response = await fetch(`${BASE_URL}/dashboard/stats`, {
+    headers: getAuthHeaders()
+  });
   
   if (!response.ok) {
     throw new Error("Error al obtener estadísticas");

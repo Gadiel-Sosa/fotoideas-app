@@ -21,14 +21,11 @@ import { getProductoPorCodigo } from "../../services/productService";
 
 const Ventas = () => {
 
-  // hooks de react (creamos el estado-evento)
   const [productos, setProductos] = useState([]);
-  const [ventas, setVentas] = useState([]);
   const [tab, setTab] = useState("registrar");
   const [paymentMethod, setPaymentMethod] = useState("Efectivo");
   const [search, setSearch] = useState("");
 
-  // Obtener datos del usuario logueado
   const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
@@ -97,40 +94,6 @@ const Ventas = () => {
     }
   };
 
-  // Cálculos
-  const subtotal = productos.reduce(
-    (acc, p) => acc + (p.precio * p.cantidad),
-    0
-  );
-
-  const iva = subtotal * 0.16;
-  const total = subtotal + iva;
-
-  // Generar ticket
-  const handleGenerarTicket = () => {
-    if (productos.length === 0) {
-      alert("No hay productos en la venta");
-      return;
-    }
-
-    const now = new Date();
-
-    const nuevaVenta = {
-      id_venta: ventas.length + 1,
-      fecha_venta: now.toLocaleDateString(),
-      hora_venta: now.toLocaleTimeString(),
-      forma_pago: paymentMethod,
-      lista_productos: [...productos],
-      subtotal_venta: subtotal,
-      impuesto_iva: iva,
-      total_venta: total,
-      estado_venta: "Realizada"
-    };
-
-    setVentas([...ventas, nuevaVenta]);
-    setProductos([]);
-  };
-
   return (
     <>
       <Header
@@ -140,7 +103,6 @@ const Ventas = () => {
 
       <PageContainer>
         <SaleHeader
-          saleNumber={ventas.length + 1}
           date={new Date().toLocaleDateString()}
           time={new Date().toLocaleTimeString()}
         />
@@ -206,7 +168,7 @@ const Ventas = () => {
                     productos={productos}
                     setProductos={setProductos}
                     rol={usuario ? usuario.nombre_rol : "Empleado"}
-                    onCobrar={handleGenerarTicket}
+                    paymentMethod={paymentMethod}
                   />
                 </div>
               </div>
@@ -216,7 +178,7 @@ const Ventas = () => {
 
         {tab === "consultar" && (
           <Section>
-            <ConsultarVentas ventas={ventas} />
+            <ConsultarVentas />
           </Section>
         )}
 

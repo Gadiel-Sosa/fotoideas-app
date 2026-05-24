@@ -16,7 +16,7 @@ const SaleSummary = ({
   productos,
   setProductos,
   rol,
-  onCobrar
+  paymentMethod
 }) => {
 
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -84,7 +84,10 @@ const SaleSummary = ({
     try {
       const response = await fetch("http://localhost:3000/api/verify-admin", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
         body: JSON.stringify({ pin: adminPassword })
       });
       const data = await response.json();
@@ -111,39 +114,40 @@ const SaleSummary = ({
         localStorage.getItem("user")
       );
 
+      if (!usuarioLocal || !usuarioLocal.id_empleado) {
+        alert("Error: No se pudo identificar al empleado");
+        return;
+      }
+
       const corteResponse = await fetch(
-        `http://localhost:3000/api/corte/datos?id_empleado=${
-          usuarioLocal
-            ? usuarioLocal.id_empleado
-            : 1
-        }`
+        `http://localhost:3000/api/corte/datos`,
+        { headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } }
       );
 
       const corteData =
         await corteResponse.json();
 
-      const idCorteActivo =
-        corteData.success &&
-        corteData.datos.id_corte
-          ? corteData.datos.id_corte
-          : 1;
+      if (!corteData.success || !corteData.datos.id_corte) {
+        alert("Error: No se pudo obtener el corte de caja activo");
+        return;
+      }
+
+      const idCorteActivo = corteData.datos.id_corte;
 
       const nuevaVenta = {
 
         id_corte_caja: idCorteActivo,
 
-        id_empleado: usuarioLocal
-          ? usuarioLocal.id_empleado
-          : 1,
-
         total_venta: total,
 
-        forma_pago: "Efectivo",
+        forma_pago: paymentMethod || "Efectivo",
 
         productos
       };
 
       await registrarVenta(nuevaVenta);
+
+      setProductos([]);
 
       setTicketData({
 
@@ -246,19 +250,19 @@ const SaleSummary = ({
       <TicketPromptModal
         visible={showTicketPrompt}
         onClose={() => {
-
           setShowTicketPrompt(false);
-
-          if (onCobrar) {
-
-            onCobrar();
-          }
         }}
         onGenerate={() => {
-
           setShowTicketPrompt(false);
-
           setShowTicket(true);
+        }}
+      />
+
+      <TicketModal
+        visible={showTicket}
+        ticketData={ticketData}
+        onClose={() => {
+          setShowTicket(false);
         }}
       />
 

@@ -4,6 +4,8 @@ const Logout = () =>{
     const navigate = useNavigate()
     const handleLogout = () =>{
         localStorage.removeItem("auth")
+        localStorage.removeItem("token")
+        localStorage.removeItem("user")
         navigate("/", {replace: true})
     }
 

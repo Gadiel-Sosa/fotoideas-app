@@ -66,19 +66,19 @@ const Reportes = () => {
           <Section className="reportes-section">
 
             {tab === "ventas" && (
-              <SalesReport />
+              <SalesReport search={search} />
             )}
 
             {tab === "masVendidos" && (
-              <BestSellersReport />
+              <BestSellersReport search={search} />
             )}
 
             {tab === "stockBajo" && (
-              <LowStockReport />
+              <LowStockReport search={search} />
             )}
 
             {tab === "comprasProveedor" && (
-              <SupplierPurchasesReport />
+              <SupplierPurchasesReport search={search} />
             )}
 
           </Section>

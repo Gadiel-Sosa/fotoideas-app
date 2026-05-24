@@ -6,7 +6,7 @@ import ReportTable from "../ReportTable/ReportTable";
 
 import "./SupplierPurchasesReport.css";
 
-const SupplierPurchasesReport = () => {
+const SupplierPurchasesReport = ({ search }) => {
   const hoy = new Date().toISOString().split('T')[0];
   const [fechas, setFechas] = useState({ inicio: hoy, fin: hoy });
   const [datos, setDatos] = useState([]);
@@ -15,7 +15,9 @@ const SupplierPurchasesReport = () => {
   const handleFetch = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:3000/api/reportes/compras-proveedor?inicio=${fechas.inicio}&fin=${fechas.fin}`);
+      const res = await fetch(`http://localhost:3000/api/reportes/compras-proveedor?inicio=${fechas.inicio}&fin=${fechas.fin}`, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+      });
       const result = await res.json();
       if (result.success) setDatos(result.datos);
     } catch (error) {
@@ -24,6 +26,12 @@ const SupplierPurchasesReport = () => {
       setLoading(false);
     }
   };
+
+  const datosFiltrados = search
+    ? datos.filter(d =>
+        d.nombre_empleado?.toLowerCase().includes(search.toLowerCase())
+      )
+    : datos;
 
   return (
 
@@ -65,7 +73,7 @@ const SupplierPurchasesReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {datos.map((d, i) => (
+                {datosFiltrados.map((d, i) => (
                   <tr key={i}>
                     <td>{d.id_corte_caja}</td>
                     <td>{new Date(d.fecha_corte).toLocaleDateString()} a las {d.hora_corte}</td>

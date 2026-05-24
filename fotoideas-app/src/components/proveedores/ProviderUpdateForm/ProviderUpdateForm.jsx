@@ -43,7 +43,11 @@ const ProviderUpdateForm = ({
       <div className="provider-update-row">
         <div className="provider-select-field">
           <label>Tipo movimiento:</label>
-          <select defaultValue="">
+          <select
+            name="tipo_movimiento"
+            value={formData.tipo_movimiento || ""}
+            onChange={handleChange}
+          >
             <option value="" disabled> -- Seleccionar -- </option>
             <option>Alta</option> <option>Actualización</option>
             <option>Baja</option>
@@ -51,7 +55,12 @@ const ProviderUpdateForm = ({
         </div>
         <div className="provider-description-box">
           <label>Descripción movimiento:</label>
-          <textarea placeholder="Descripción..." />
+          <textarea
+            name="descripcion_movimiento"
+            value={formData.descripcion_movimiento || ""}
+            onChange={handleChange}
+            placeholder="Descripción..."
+          />
         </div>
       </div>
 
@@ -107,11 +116,19 @@ const ProviderUpdateForm = ({
 
           <label>Giro:</label>
 
-          <select defaultValue="">
+          <select
+            name="giro"
+            value={formData.giro || ""}
+            onChange={handleChange}
+          >
 
             <option value="" disabled>
               -- Seleccionar --
             </option>
+
+            <option>Tecnología</option>
+            <option>Papelería</option>
+            <option>Alimentos</option>
 
           </select>
 
@@ -121,11 +138,18 @@ const ProviderUpdateForm = ({
 
           <label>Estado:</label>
 
-          <select defaultValue="">
+          <select
+            name="estado_proveedor"
+            value={formData.estado_proveedor || ""}
+            onChange={handleChange}
+          >
 
             <option value="" disabled>
               -- Seleccionar --
             </option>
+
+            <option>Activo</option>
+            <option>Inactivo</option>
 
           </select>
 
@@ -138,11 +162,17 @@ const ProviderUpdateForm = ({
       <div className="provider-update-row">
         <Input
           label="Hora movimiento"
+          name="hora_movimiento"
           type="time"
+          value={formData.hora_movimiento || ""}
+          onChange={handleChange}
         />
         <Input
           label="Fecha movimiento"
+          name="fecha_movimiento"
           type="date"
+          value={formData.fecha_movimiento || ""}
+          onChange={handleChange}
         />
       </div>
 

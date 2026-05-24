@@ -6,7 +6,7 @@ import ReportTable from "../ReportTable/ReportTable";
 
 import "./SalesReport.css";
 
-const SalesReport = () => {
+const SalesReport = ({ search }) => {
   const hoy = new Date().toISOString().split('T')[0];
   const [fechas, setFechas] = useState({ inicio: hoy, fin: hoy });
   const [datos, setDatos] = useState([]);
@@ -15,7 +15,9 @@ const SalesReport = () => {
   const handleFetch = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:3000/api/reportes/ventas?inicio=${fechas.inicio}&fin=${fechas.fin}`);
+      const res = await fetch(`http://localhost:3000/api/reportes/ventas?inicio=${fechas.inicio}&fin=${fechas.fin}`, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+      });
       const result = await res.json();
       if (result.success) setDatos(result.datos);
     } catch (error) {
@@ -26,6 +28,13 @@ const SalesReport = () => {
   };
 
   const total = datos.reduce((sum, item) => sum + Number(item.total_venta), 0);
+
+  const datosFiltrados = search
+    ? datos.filter(d =>
+        d.nombre_empleado?.toLowerCase().includes(search.toLowerCase()) ||
+        d.forma_pago?.toLowerCase().includes(search.toLowerCase())
+      )
+    : datos;
 
   return (
 
@@ -88,7 +97,7 @@ const SalesReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {datos.map((d) => (
+                {datosFiltrados.map((d) => (
                   <tr key={d.id_venta}>
                     <td>{d.id_venta}</td>
                     <td>{new Date(d.fecha_venta).toLocaleDateString()}</td>

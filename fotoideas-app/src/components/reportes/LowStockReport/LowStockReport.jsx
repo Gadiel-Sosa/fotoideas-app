@@ -6,14 +6,16 @@ import ReportTable from "../ReportTable/ReportTable";
 
 import "./LowStockReport.css";
 
-const LowStockReport = () => {
+const LowStockReport = ({ search }) => {
   const [datos, setDatos] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleFetch = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:3000/api/reportes/stock-bajo`);
+      const res = await fetch(`http://localhost:3000/api/reportes/stock-bajo`, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+      });
       const result = await res.json();
       if (result.success) setDatos(result.datos);
     } catch (error) {
@@ -26,6 +28,13 @@ const LowStockReport = () => {
   useEffect(() => {
     handleFetch();
   }, []);
+
+  const datosFiltrados = search
+    ? datos.filter(d =>
+        d.nombre?.toLowerCase().includes(search.toLowerCase()) ||
+        d.codigo?.toLowerCase().includes(search.toLowerCase())
+      )
+    : datos;
 
   return (
 
@@ -65,7 +74,7 @@ const LowStockReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {datos.map((d, i) => (
+                {datosFiltrados.map((d, i) => (
                   <tr key={i}>
                     <td>{d.codigo || "N/A"}</td>
                     <td className="font-medium">{d.nombre}</td>
@@ -83,7 +92,7 @@ const LowStockReport = () => {
 
         <label>Total:</label>
 
-        <span>{datos.length} productos en riesgo</span>
+        <span>{datosFiltrados.length} productos en riesgo</span>
 
       </div>
 

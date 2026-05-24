@@ -5,6 +5,7 @@ import Button from "../../ui/Button/Button";
 
 const ProviderDeleteForm = ({
   formData,
+  handleChange,
   handleConfirmar,
   resetForm
 }) => {
@@ -29,12 +30,18 @@ const ProviderDeleteForm = ({
 
         <Input
           label="Fecha movimiento"
+          name="fecha_movimiento"
           type="date"
+          value={formData.fecha_movimiento || ""}
+          onChange={handleChange}
         />
 
         <Input
           label="Hora movimiento"
+          name="hora_movimiento"
           type="time"
+          value={formData.hora_movimiento || ""}
+          onChange={handleChange}
         />
 
       </div>
@@ -47,7 +54,11 @@ const ProviderDeleteForm = ({
 
           <label>Tipo movimiento:</label>
 
-          <select defaultValue="">
+          <select
+            name="tipo_movimiento"
+            value={formData.tipo_movimiento || ""}
+            onChange={handleChange}
+          >
 
             <option value="" disabled>
               -- Seleccionar --
@@ -65,7 +76,11 @@ const ProviderDeleteForm = ({
 
           <label>Estado:</label>
 
-          <select defaultValue="">
+          <select
+            name="estado_proveedor"
+            value={formData.estado_proveedor || ""}
+            onChange={handleChange}
+          >
 
             <option value="" disabled>
               -- Seleccionar --
@@ -88,6 +103,9 @@ const ProviderDeleteForm = ({
         <label>Descripción movimiento:</label>
 
         <textarea
+          name="descripcion_movimiento"
+          value={formData.descripcion_movimiento || ""}
+          onChange={handleChange}
           placeholder="Descripción..."
         />
 

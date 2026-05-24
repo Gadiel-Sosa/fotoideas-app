@@ -3,7 +3,7 @@ import "./CorteCaja.css";
 import Button from "../../ui/Button/Button";
 import Input from "../../ui/Input/Input";
 import Section from "../../ui/Section/Section";
-import { realizarCorte } from "../../../services/corteService";
+import { obtenerDatosCorte, realizarCorte } from "../../../services/CorteService";
 
 const CorteCaja = () => {
   const [loading, setLoading] = useState(true);
@@ -19,7 +19,6 @@ const CorteCaja = () => {
     observaciones: ""
   });
 
-  // Cargar datos al montar el componente
   useEffect(() => {
     cargarDatosCorte();
   }, []);
@@ -27,22 +26,16 @@ const CorteCaja = () => {
   const cargarDatosCorte = async () => {
     try {
       setLoading(true);
-      
-      // Obtenemos el usuario activo de la sesión desde el LocalStorage
-      const usuarioLocal = JSON.parse(localStorage.getItem("user"));
-      const idEmpleado = usuarioLocal ? usuarioLocal.id_empleado : 1;
+      const datos = await obtenerDatosCorte();
 
-      const response = await fetch(`http://localhost:3000/api/corte/datos?id_empleado=${idEmpleado}`);
-      const data = await response.json();
-
-      if (data.success) {
+      if (datos) {
         setCorte({
           ...corte,
-          id_corte: data.datos.id_corte,
-          cajero: data.datos.cajero,
-          ventasTotales: data.datos.ventasTotales,
-          montoInicial: data.datos.montoInicial === 0 ? "" : data.datos.montoInicial,
-          efectivoEsperado: data.datos.efectivoEsperado
+          id_corte: datos.id_corte,
+          cajero: datos.cajero,
+          ventasTotales: datos.ventasTotales,
+          montoInicial: datos.montoInicial === 0 ? "" : datos.montoInicial,
+          efectivoEsperado: datos.efectivoEsperado
         });
       }
     } catch (error) {
@@ -96,23 +89,17 @@ const CorteCaja = () => {
       return;
     }
 
-    // Obtenemos el usuario activo de la sesión para registrar el corte a su nombre
-    const usuarioLocal = JSON.parse(localStorage.getItem("user"));
-    const idEmpleado = usuarioLocal ? usuarioLocal.id_empleado : 1;
-
     try {
       const resultado = await realizarCorte({
         id_corte: corte.id_corte,
         monto_inicial: parseFloat(corte.montoInicial) || 0,
         efectivo_real: parseFloat(corte.efectivoReal) || 0,
         pago_proveedores: parseFloat(corte.pagoProveedores) || 0,
-        observaciones_corte: corte.observaciones,
-        id_empleado: idEmpleado // Enviamos el ID dinámico al backend
+        observaciones_corte: corte.observaciones
       });
 
       alert(`Corte realizado exitosamente\nDiferencia: $${resultado.datos.diferencia_caja.toFixed(2)}`);
       
-      // Recargar datos
       cargarDatosCorte();
       setCorte({
         ...corte,
@@ -122,7 +109,7 @@ const CorteCaja = () => {
         observaciones: ""
       });
     } catch (error) {
-        console.error("Error al cargar datos:", error);
+        console.error("Error al realizar corte:", error);
       alert("Error al realizar el corte");
     }
   };

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getAuthHeaders } from "../../services/authService";
 
 import "../Inventario/Inventario.css";
 
@@ -59,7 +60,9 @@ const Inventario = () => {
 
   const cargarProductos = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/productos");
+      const response = await fetch("http://localhost:3000/api/productos", {
+        headers: getAuthHeaders()
+      });
       const data = await response.json();
       if (data.success) {
         setProductos(data.productos);
@@ -71,7 +74,9 @@ const Inventario = () => {
 
   const cargarProveedores = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/proveedores");
+      const response = await fetch("http://localhost:3000/api/proveedores", {
+        headers: getAuthHeaders()
+      });
       const data = await response.json();
       if (data.success) {
         setProveedoresList(data.proveedores);
@@ -139,7 +144,7 @@ const Inventario = () => {
       try {
         const response = await fetch("http://localhost:3000/api/productos", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
           body: JSON.stringify(formData)
         });
         const data = await response.json();
@@ -157,7 +162,7 @@ const Inventario = () => {
       try {
         const response = await fetch(`http://localhost:3000/api/productos/${formData.id_producto}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
           body: JSON.stringify(formData)
         });
         const data = await response.json();
@@ -175,7 +180,7 @@ const Inventario = () => {
       try {
         const response = await fetch(`http://localhost:3000/api/productos/${formData.id_producto}`, {
           method: "DELETE",
-          headers: { "Content-Type": "application/json" },
+          headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
           body: JSON.stringify(formData)
         });
         const data = await response.json();

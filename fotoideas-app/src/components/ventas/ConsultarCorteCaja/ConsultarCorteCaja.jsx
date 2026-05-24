@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getAuthHeaders } from "../../../services/authService";
 
 import "./ConsultarCorteCaja.css";
 
@@ -13,7 +14,9 @@ const ConsultarCorteCaja = () => {
 
     const fetchCortes = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/cortes");
+        const response = await fetch("http://localhost:3000/api/cortes", {
+          headers: getAuthHeaders()
+        });
         const data = await response.json();
         if (data.success) {
           setCortes(data.cortes);

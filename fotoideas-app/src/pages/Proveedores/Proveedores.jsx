@@ -36,7 +36,19 @@ const initialProviderState = {
 
   RFC_proveedor: "",
 
-  direccion_proveedor: ""
+  direccion_proveedor: "",
+
+  giro: "",
+
+  estado_proveedor: "",
+
+  tipo_movimiento: "",
+
+  descripcion_movimiento: "",
+
+  fecha_movimiento: "",
+
+  hora_movimiento: ""
 };
 
 const Proveedores = () => {
@@ -318,6 +330,7 @@ const Proveedores = () => {
 
                 <ProviderDeleteForm
                   formData={formData}
+                  handleChange={handleChange}
                   handleConfirmar={handleConfirmar}
                   resetForm={resetForm}
                 />

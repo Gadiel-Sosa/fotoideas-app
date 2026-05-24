@@ -6,7 +6,7 @@ import ReportTable from "../ReportTable/ReportTable";
 
 import "./BestSellerReport.css";
 
-const BestSellersReport = () => {
+const BestSellersReport = ({ search }) => {
   const hoy = new Date().toISOString().split('T')[0];
   const [fechas, setFechas] = useState({ inicio: hoy, fin: hoy });
   const [datos, setDatos] = useState([]);
@@ -15,7 +15,9 @@ const BestSellersReport = () => {
   const handleFetch = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:3000/api/reportes/mas-vendidos?inicio=${fechas.inicio}&fin=${fechas.fin}`);
+      const res = await fetch(`http://localhost:3000/api/reportes/mas-vendidos?inicio=${fechas.inicio}&fin=${fechas.fin}`, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+      });
       const result = await res.json();
       if (result.success) setDatos(result.datos);
     } catch (error) {
@@ -24,6 +26,13 @@ const BestSellersReport = () => {
       setLoading(false);
     }
   };
+
+  const datosFiltrados = search
+    ? datos.filter(d =>
+        d.nombre?.toLowerCase().includes(search.toLowerCase()) ||
+        d.codigo?.toLowerCase().includes(search.toLowerCase())
+      )
+    : datos;
 
   return (
 
@@ -65,7 +74,7 @@ const BestSellersReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {datos.map((d, i) => (
+                {datosFiltrados.map((d, i) => (
                   <tr key={i}>
                     <td>{d.codigo || "N/A"}</td>
                     <td className="font-medium">{d.nombre}</td>
